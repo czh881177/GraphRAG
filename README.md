@@ -126,7 +126,7 @@ python scripts/init_schema.py
 | D 后端      | Flask 端点・子图回查   | /api/graphrag 可用（9/13） |
 | E 前端      | D3 可视化・问答面板     | 图可视化可展示（9/13）          |
 
-详细分工见 `docs/WEEK1_REPORT.md` 与团队计划。
+详细分工见 `docs/PREP_CHECKLIST.md` 与团队计划。
 
 ## 6. 项目前准备清单（组员必读）
 
