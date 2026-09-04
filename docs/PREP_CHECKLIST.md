@@ -12,10 +12,11 @@
 | A1 | 安装 Git | 安装并配置 user.name / user.email | `git --version` 有输出 |
 | A2 | Git 账号 + 加入仓库 | 注册 GitHub 或 Gitee，把用户名发给 A，被加入仓库并授予权限 | 能 `git clone` 仓库 |
 | A3 | 代码编辑器 | VS Code（推荐）或 PyCharm；装 Python / PowerShell 插件 | 能打开 `D:\code\graphRAG` |
-| A4 | conda 环境 | 装 Miniconda；创建环境 `graphragexpr`（**Python 3.12**，勿用 3.14） | `conda activate graphragexpr` 成功 |
-| A5 | 安装依赖 | 在环境内执行 `python -m pip install -r requirements.txt` | 无报错；`import flask, neo4j, openai` 成功 |
-| A6 | **通读 4 份文档** | 开会前必读（见下方"必读清单"），每人至少读到自己角色相关章节 | 组会能说出自己模块的输入/输出 |
-| A7 | 时间确认 | 填写本周可用时间（课表外），确认 9/7、9/13 两个关键日 | 组会上确认 |
+| A4 | Python 3.12 环境 | **任选其一**：① 装 Python 3.12 → 项目内建 `.venv`（组长同款，推荐）；② 装 Miniconda → `conda create -n graphragexpr python=3.12`。**勿用 3.14** | `python --version` 显示 3.12.x |
+| A5 | 安装依赖 | 在环境内执行 `python -m pip install -r requirements.txt`（.venv 则用 `.venv\Scripts\python.exe -m pip ...`） | 无报错；`import flask, neo4j, openai` 成功 |
+| A6 | **Docker Desktop**（跑 Neo4j） | 安装并启动 Docker Desktop，确认引擎 Running。**拉不到镜像的坑见下"常见坑"表** | `docker ps` 有输出 |
+| A7 | 通读 4 份文档 | 开会前必读（见下方"必读清单"），每人至少读到自己角色相关章节 | 组会能说出自己模块的输入/输出 |
+| A8 | 时间确认 | 填写本周可用时间（课表外），确认 9/7、9/13 两个关键日 | 组会上确认 |
 
 **必读清单（仓库 `docs/` 目录）**
 - `README.md` —— 项目全貌 + 协作约定（分支/提交/站会）
@@ -78,6 +79,7 @@
 |---|---|
 | conda 命令找不到 | 用 **Anaconda Prompt**（开始菜单）打开再 `conda activate graphragexpr` |
 | Python 版本装错 | 环境必须是 **3.12**（3.14 会导致部分库不兼容） |
+| **Docker 拉不动 neo4j 镜像** | 国内直连 Docker Hub 常被墙、部分加速器已失效。**改用镜像前缀拉取**（Docker Desktop 的 containerd 模式下 daemon 镜像源配置不生效）：`docker pull docker.m.daocloud.io/library/neo4j:5-community` 后 `docker tag docker.m.daocloud.io/library/neo4j:5-community neo4j:5-community`，再运行 `start_neo4j.ps1` |
 | Neo4j 密码不一致 | 默认 `neo4j / 12345678`；改过密码要同步改 `.env` 的 `NEO4J_PASSWORD` |
 | 向量索引查询报错 | Chunk 写入时必须带 `embedding` 属性（见 SCHEMA §6） |
 | API key 泄漏 | `.env` 不入库；任何人不要截图发群；泄露立即在 DeepSeek 控制台重置 |
