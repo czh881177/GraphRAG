@@ -121,18 +121,18 @@ python scripts/init_schema.py
 | 角色        | 职责              | 第一周红线                  |
 | --------- | --------------- | ---------------------- |
 | A 组长 / 架构 | 环境・契约・Schema・联调 | 工程底座 + 汇报框架            |
-| B 数据 / 图谱 | 语料・抽取 Prompt・建图 | 图谱入库（9/13）             |
-| C 检索 / 生成 | 4 检索器・LLM・评估    | 命令行问答跑通（9/13）          |
-| D 后端      | Flask 端点・子图回查   | /api/graphrag 可用（9/13） |
-| E 前端      | D3 可视化・问答面板     | 图可视化可展示（9/13）          |
+| B 数据 / 图谱 | 语料・抽取 Prompt・建图 | 图谱入库             |
+| C 检索 / 生成 | 4 检索器・LLM・评估    | 命令行问答跑通          |
+| D 后端      | Flask 端点・子图回查   | /api/graphrag 可用 |
+| E 前端      | D3 可视化・问答面板     | 图可视化可展示          |
 
 详细分工见 `docs/PREP_CHECKLIST.md` 与团队计划。
 
 ## 6. 项目前准备清单（组员必读）
 
-> 完整版见 `docs/PREP_CHECKLIST.md`。以下为要点，截止 **9/7 第一次组会前**完成通用准备；卡住第一时间在群里提出。
+> 完整版见 `docs/PREP_CHECKLIST.md`。以下为要点，卡住第一时间在群里提出。
 
-### 6.1 全员通用准备（9/7 前）
+### 6.1 全员通用准备
 
 | # | 事项 | 验收标准 |
 |---|---|---|
@@ -142,10 +142,9 @@ python scripts/init_schema.py
 | A4 | **Python 3.12 环境**（任选其一）<br>① `.venv`（组长同款，推荐）：装 Python 3.12 → 项目内建 `.venv`<br>② Miniconda：`conda create -n graphragexpr python=3.12`<br>**勿用 3.14** | `python --version` 显示 3.12.x |
 | A5 | 安装依赖：`python -m pip install -r requirements.txt`<br>（`.venv` 则用 `.venv\Scripts\python.exe -m pip ...`） | `import flask, neo4j, openai` 成功 |
 | A6 | **Docker Desktop**（跑 Neo4j）：安装并启动，确认引擎 Running。<br>拉不动镜像的解法见 6.4「常见坑」 | `docker ps` 有输出 |
-| A7 | **通读 docs/ 下 4 份文档**（README / API_CONTRACT / DATA_PLAN / SCHEMA） | 组会能说出自己模块的输入/输出 |
-| A8 | 确认本周可用时间，锁定 9/7、9/13 | 组会确认 |
+| A7 | **通读 docs/ 下文档**API_CONTRACT / DATA_PLAN / SCHEMA） 
 
-**组员 clone 后 5 分钟自检**（装完上面 A1–A6 后依次执行）：
+**自检**（装完上面 A1–A6 后依次执行）：
 
 ```
 git clone https://github.com/czh881177/GraphRAG.git
@@ -164,7 +163,7 @@ powershell -ExecutionPolicy Bypass -File .\setup.ps1          # 4/4 全绿
 | **D 后端 API** | 通读 `backend/api.py`；装 Postman/curl；Neo4j 起来后跑通 `GET /api/health`；精读 `API_CONTRACT.md` |
 | **E 前端可视化** | 通读 `frontend/index.html`；会用 Chrome DevTools；复习 D3 力导向图 API；确认 `lib/` 本地库存在 |
 
-### 6.3 开工第一天（9/7）验收
+### 6.3 验收
 
 - [ ] 全员 clone 到本地
 - [ ] 每人 `setup.ps1` 跑一遍，4 项检查全绿
