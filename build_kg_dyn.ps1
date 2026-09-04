@@ -1,15 +1,21 @@
-# build_kg_dyn.ps1
-# Script to build knowledge graph from The Story of The Stone (红楼梦)
+﻿# build_kg_dyn.ps1
+# Script to build knowledge graph from source text (pharma edition)
 
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "Building Knowledge Graph - 红楼梦" -ForegroundColor Cyan
+Write-Host "Building Knowledge Graph" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Check if conda environment is active
-if ($env:CONDA_DEFAULT_ENV -ne "graphragexpr") {
-    Write-Host "Error: Please activate the graphragexpr conda environment first:" -ForegroundColor Red
-    Write-Host "  conda activate graphragexpr" -ForegroundColor Yellow
+# Python 环境解析：优先 .venv，其次 conda graphragexpr
+$py = $null
+if (Test-Path "$PSScriptRoot\.venv\Scripts\python.exe") {
+    $py = "$PSScriptRoot\.venv\Scripts\python.exe"
+    Write-Host "✓ 使用 .venv Python 环境" -ForegroundColor Green
+} elseif ($env:CONDA_DEFAULT_ENV -eq "graphragexpr") {
+    $py = "python"
+    Write-Host "✓ 使用 conda graphragexpr 环境" -ForegroundColor Green
+} else {
+    Write-Host "Error: 未找到 Python 环境，请先执行: .venv\Scripts\activate 或 conda activate graphragexpr" -ForegroundColor Red
     exit 1
 }
 
@@ -17,7 +23,7 @@ if ($env:CONDA_DEFAULT_ENV -ne "graphragexpr") {
 Write-Host "Checking Neo4j connection..." -ForegroundColor Yellow
 $env:PYTHONIOENCODING = "utf-8"
 try {
-    $result = python -c "from dotenv import load_dotenv; load_dotenv(); import os; from neo4j import GraphDatabase; driver = GraphDatabase.driver(os.getenv('NEO4J_URL'), auth=(os.getenv('NEO4J_USER'), os.getenv('NEO4J_PASSWORD'))); driver.verify_connectivity(); print('OK')"
+    $result = & $py -c "from dotenv import load_dotenv; load_dotenv(); import os; from neo4j import GraphDatabase; driver = GraphDatabase.driver(os.getenv('NEO4J_URL'), auth=(os.getenv('NEO4J_USER'), os.getenv('NEO4J_PASSWORD'))); driver.verify_connectivity(); print('OK')"
     if ($result -eq "OK") {
         Write-Host "✓ Neo4j connected" -ForegroundColor Green
     }
@@ -27,30 +33,23 @@ try {
     exit 1
 }
 
-# Check if origdata/orig.txt exists
-if (-not (Test-Path "origdata\orig.txt")) {
-    Write-Host "✗ Error: origdata\orig.txt not found" -ForegroundColor Red
-    Write-Host "Please ensure The Story of The Stone text file exists" -ForegroundColor Yellow
-    exit 1
-}
-
 Write-Host ""
 Write-Host "Testing data extraction..." -ForegroundColor Yellow
-python graphragexpr\extract\sample_data_dyn.py
+& $py graphragexpr\extract\sample_data_dyn.py
 
 Write-Host ""
-Write-Host "Building knowledge graph from 红楼梦..." -ForegroundColor Yellow
+Write-Host "Building knowledge graph..." -ForegroundColor Yellow
 Write-Host ""
 
-python graphragexpr\extract\build_kg_dyn.py
+& $py graphragexpr\extract\build_kg_dyn.py
 
 Write-Host ""
 Write-Host "Creating vector index..." -ForegroundColor Yellow
-python graphragexpr\extract\create_index.py
+& $py graphragexpr\extract\create_index.py
 
 Write-Host ""
 Write-Host "Creating fulltext index..." -ForegroundColor Yellow
-python -c "
+& $py -c "
 from neo4j import GraphDatabase
 import os
 from dotenv import load_dotenv

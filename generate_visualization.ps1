@@ -1,4 +1,4 @@
-# generate_visualization.ps1
+﻿# generate_visualization.ps1
 # Script to generate standalone visualization
 
 Write-Host "==========================================" -ForegroundColor Cyan
