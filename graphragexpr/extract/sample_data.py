@@ -77,7 +77,7 @@ The Electromagnetic Bomb - a Weapon of Electrical Mass Destruction
 
 这是啥？妥妥的一次性定向能武器！
 
-Area = \pi* (D*tan\theta)^{2}
+Area = pi * (D*tan(theta))**2
 
 根据上面公式，在100 km外，照射半径大约100 m，照射面积大约是30000 m2。设1000 kg的热核武器，30000 TJ的核爆能量，转化效率取10%，射流能量约是3000 TJ。
 

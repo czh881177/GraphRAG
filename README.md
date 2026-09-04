@@ -41,9 +41,9 @@ graphRAG/
 
 │   ├── vis/            #   独立可视化生成
 
-│   ├── external\_embedder.py   # OpenAI 兼容 Embedding（哈希降级）
+│   ├── external_embedder.py   # OpenAI 兼容 Embedding（哈希降级）
 
-│   └── custom\_embedder.py     # 哈希 Embedder（离线 fallback）
+│   └── custom_embedder.py     # 哈希 Embedder（离线 fallback）
 
 ├── lib/                # 本地前端库（vis-network / tom-select）
 
@@ -59,7 +59,7 @@ graphRAG/
 
 ├── scripts/            # 环境检查 / Schema 初始化
 
-├── \*.ps1               # build\_kg / start\_backend / run\_tests / generate\_visualization
+├── *.ps1               # build_kg / start_backend / run_tests / generate_visualization
 
 └── .env.example        # 环境变量模板（复制为 .env 并填写）
 ```
@@ -71,25 +71,27 @@ graphRAG/
 
 
 ```
-\# 1. 配置环境变量
+# 1. 配置环境变量
 
 copy .env.example .env        # 然后编辑 .env 填入 Neo4j / DeepSeek 凭据
 
-\# 2. 启动 Neo4j（本机或 Docker），确认 7687 端口可连
+# 2. 启动 Neo4j（本机或 Docker），确认 7687 端口可连
 
-\# 3. 初始化数据库 Schema 与索引（幂等）
+# 3. 初始化数据库 Schema 与索引（幂等）
 
-python scripts/init\_schema.py
+python scripts/init_schema.py
 
-\# 4. 构建医药知识图谱（语料放入 data/raw/）
+# 4. 构建医药知识图谱（语料放入 data/raw/）
 
-\#    （B 完成 data/processed 后）python graphragexpr/extract/build\_kg\_dyn.py
+#    ⚠ 当前 build_kg_dyn.py 为基线占位（仍为《红楼梦》抽取逻辑），
+#    由 B 在 9/13 前按 DATA_PLAN / SCHEMA 改造为医药版（6 类本体 + 读 data/processed）
+#    （B 完成 data/processed 后）python graphragexpr/extract/build_kg_dyn.py
 
-\# 5. 启动后端 + 打开前端
+# 5. 启动后端 + 打开前端
 
-./start\_backend.ps1           # http://localhost:5000
+./start_backend.ps1           # http://localhost:5000
 
-\# 浏览器打开 frontend/index.html
+# 浏览器打开 frontend/index.html
 ```
 
 > **组长机环境状态（2026-09-04 已就绪）**：本机 `.venv`（Python 3.12.10）依赖已装全，`.env` 已填 DeepSeek key，Neo4j 容器（`neo4j:5-community`，端口 7474/7687，`neo4j/12345678`）运行中，`init_schema.py` 已建索引。以后重开电脑只需两步：

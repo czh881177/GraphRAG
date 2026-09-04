@@ -32,7 +32,7 @@ data/
 └── processed/  # 清洗+分块后的语料：chunks.json / chunks_*.json
 ```
 
-- 原始语料**不提交 Git**（`.gitignore` 已忽略 `origdata`，需同步加入 `data/raw`）。
+- 原始语料**不提交 Git**（`.gitignore` 已忽略 `data/raw/` 与 `data/processed/`）。
 - 分块格式（供 build 脚本消费）：
 
 ```json

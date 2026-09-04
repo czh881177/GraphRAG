@@ -1,5 +1,15 @@
 """
-Build knowledge graph dynamically from The Story of The Stone (红楼梦)
+Build knowledge graph dynamically from source text (医药 GraphRAG).
+
+⚠ TODO（B 数据/图谱 负责，9/13 红线前完成）：
+本文件为基线占位，仍沿用《红楼梦》抽取逻辑，需按 docs/DATA_PLAN.md 与 docs/SCHEMA.md 改造：
+  1. 数据源：改读 data/processed/chunks.json（原 sample_data_dyn.get_chunks 仅为占位）
+  2. 本体：实体类型收敛为 6 类（药物/疾病/症状/公司/作用机制/副作用），
+     允许 + 必要时“概念”；删除人物/地点/物品等红楼梦类型
+  3. 关系：使用 DATA_PLAN §5 建议关系（研发/作用于/治疗/缓解/副作用/属于）
+  4. Document：name/id 改为医药文档（如 “aspirin.txt” / 文档文件名），勿用 ‘hongloumeng’
+  5. Chunk.index 保证全局唯一（满足约束 chunk_index），写入时必须带 1536 维 embedding
+  6. 实体↔Chunk 关联建议改用抽取结果定位（当前按 name in chunk_text 匹配，误匹配率高）
 """
 import os
 import sys

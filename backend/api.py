@@ -91,6 +91,11 @@ def get_entities():
     """Get all entities with their types"""
     entity_type = request.args.get('type', None)
 
+    # 白名单校验：Cypher 标签不可参数化，必须校验，防止注入
+    ALLOWED_TYPES = {"药物", "疾病", "症状", "公司", "作用机制", "副作用", "概念"}
+    if entity_type and entity_type not in ALLOWED_TYPES:
+        return jsonify({"error": "Invalid type: " + entity_type}), 400
+
     if entity_type:
         query = f"""
         MATCH (n:`{entity_type}`)
@@ -230,7 +235,7 @@ def graphrag_query():
     """Perform GraphRAG query and return answer with subgraph used"""
     data = request.get_json()
     question = data.get('question', '')
-    method = data.get('method', 'hybrid')  # vector, hybrid, vector_cypher, hybrid_cypher
+    method = data.get('method', 'vector_cypher')  # vector, hybrid, vector_cypher, hybrid_cypher（默认与契约/前端一致）
 
     if not question:
         return jsonify({"error": "Question is required"}), 400
@@ -470,7 +475,7 @@ def close_db(error):
 
 if __name__ == '__main__':
     print("Starting GraphRAG Backend API...")
-    print(f"Neo4j URI: {os.getenv('NEO4J_URI')}")
+    print(f"Neo4j URI: {os.getenv('NEO4J_URL')}")
     print("API will be available at http://localhost:5000")
     print("\nAvailable endpoints:")
     print("  GET  /api/health          - Health check")
