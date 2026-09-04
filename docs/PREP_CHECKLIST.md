@@ -1,0 +1,84 @@
+# 项目前准备清单（PREP_CHECKLIST）v1.0
+
+> 制定：组长 A · 面向：全体组员（B/C/D/E）· 截止：**9/7 第一次组会前**完成 A 部分
+> 原则：任何一项卡住，第一时间在群里提出，由 A 协调，不要自己闷着装。
+
+---
+
+## A. 全员通用准备（每个人，9/7 前）
+
+| # | 事项 | 具体要求 | 验收标准 |
+|---|---|---|---|
+| A1 | 安装 Git | 安装并配置 user.name / user.email | `git --version` 有输出 |
+| A2 | Git 账号 + 加入仓库 | 注册 GitHub 或 Gitee，把用户名发给 A，被加入仓库并授予权限 | 能 `git clone` 仓库 |
+| A3 | 代码编辑器 | VS Code（推荐）或 PyCharm；装 Python / PowerShell 插件 | 能打开 `D:\code\graphRAG` |
+| A4 | conda 环境 | 装 Miniconda；创建环境 `graphragexpr`（**Python 3.12**，勿用 3.14） | `conda activate graphragexpr` 成功 |
+| A5 | 安装依赖 | 在环境内执行 `python -m pip install -r requirements.txt` | 无报错；`import flask, neo4j, openai` 成功 |
+| A6 | **通读 4 份文档** | 开会前必读（见下方"必读清单"），每人至少读到自己角色相关章节 | 组会能说出自己模块的输入/输出 |
+| A7 | 时间确认 | 填写本周可用时间（课表外），确认 9/7、9/13 两个关键日 | 组会上确认 |
+
+**必读清单（仓库 `docs/` 目录）**
+- `README.md` —— 项目全貌 + 协作约定（分支/提交/站会）
+- `API_CONTRACT.md` —— 接口契约（D/E 精读，B/C 了解）
+- `DATA_PLAN.md` —— 医药数据方案（B 精读，其余了解）
+- `SCHEMA.md` —— Neo4j Schema（B/C 精读，其余了解）
+
+---
+
+## B. 按角色专项准备
+
+### B · 数据 / 图谱构建
+| # | 事项 | 说明 |
+|---|---|---|
+| B1 | 确定语料来源 | 按 DATA_PLAN §1，列出 20–40 篇医药文本候选（公开说明书/科普），发 A 审核 |
+| B2 | 开始收集 | 存到 `data/raw/`（每篇一个 .txt）；会上报篇数与总字数 |
+| B3 | 装 pandas | 清洗用：`python -m pip install pandas` |
+| B4 | 准备本体类型表初稿 | 6 类本体 + 各自典型实体示例（各 3–5 个），组会讨论定稿 |
+| B5 | 学会 Neo4j Browser 查数 | 会用 `MATCH (n) RETURN n LIMIT 25` 看数据；确认本机浏览器能开 `http://localhost:7474` |
+
+### C · 检索 / 生成
+| # | 事项 | 说明 |
+|---|---|---|
+| C1 | 拿到 DeepSeek API key | 与 A 确认使用团队 key（或自己注册），**先各测 1 次 chat 调用**确认可用 |
+| C2 | 测 embedding | 确认 embedding 端点可用；不可用则确认走哈希降级（离线 demo 可用） |
+| C3 | 通读检索代码 | `graphragexpr/extract/rag_graph.py`、`rag_vector.py`、`external_embedder.py`，弄清 4 种检索器差异 |
+| C4 | 准备 10 个测试问题 | 单跳/多跳/跨实体各若干（医药主题），组会评审 |
+
+### D · 后端 API
+| # | 事项 | 说明 |
+|---|---|---|
+| D1 | 通读 backend/api.py | 弄清 7 个端点与 Cypher 逻辑 |
+| D2 | 装接口测试工具 | Postman 或 curl；会用 GET/POST 调 JSON 接口 |
+| D3 | 跑通骨架 | 环境就绪后执行 `./start_backend.ps1`，`GET /api/health` 有响应（Neo4j 起来后） |
+| D4 | 精读 API_CONTRACT | 逐条核对请求/响应字段 |
+
+### E · 前端可视化
+| # | 事项 | 说明 |
+|---|---|---|
+| E1 | 通读 frontend/index.html | 弄清 D3 力导向图、问答面板、搜索三个模块 |
+| E2 | 浏览器调试 | 会用 Chrome DevTools（Network / Console）；确认本机能访问 d3js CDN |
+| E3 | D3.js 基础 | 复习力导向图（forceSimulation / forceLink / forceManyBody）API |
+| E4 | 本地库确认 | 确认 `lib/` 下 vis-network 等资源存在（已复制） |
+
+---
+
+## C. 开工第一天（9/7 周一）验收
+
+- [ ] 全员 clone 到本地（A 确认仓库可访问）
+- [ ] 每人 `setup.ps1` 跑一遍，**4 项检查全绿**（或明确记录哪一项由 A 统一解决）
+- [ ] Neo4j 已启动，`python scripts/init_schema.py` 执行成功（A 或 B 操作）
+- [ ] `.env` 已配置（A 统一填写，或各自 copy 后填）
+- [ ] 组会完成：任务认领、本体类型表初稿、10 个测试问题初稿、每日站会时间确定
+
+---
+
+## D. 常见坑（提前避雷）
+
+| 坑 | 解决 |
+|---|---|
+| conda 命令找不到 | 用 **Anaconda Prompt**（开始菜单）打开再 `conda activate graphragexpr` |
+| Python 版本装错 | 环境必须是 **3.12**（3.14 会导致部分库不兼容） |
+| Neo4j 密码不一致 | 默认 `neo4j / 12345678`；改过密码要同步改 `.env` 的 `NEO4J_PASSWORD` |
+| 向量索引查询报错 | Chunk 写入时必须带 `embedding` 属性（见 SCHEMA §6） |
+| API key 泄漏 | `.env` 不入库；任何人不要截图发群；泄露立即在 DeepSeek 控制台重置 |
+| 中文乱码 | PowerShell 脚本已设 `PYTHONIOENCODING=utf-8`；文本文件统一 UTF-8 |
