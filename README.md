@@ -22,7 +22,7 @@
 
 * **前端**：D3.js 力导向图 + 原生 HTML/CSS
 
-* **环境**：conda（graphragexpr 环境）+ Python 3.12
+* **环境**：Python 3.12（`.venv` 推荐 / conda `graphragexpr` 备选）+ Neo4j 5.x（Docker）
 
 ## 2. 目录结构
 
@@ -137,10 +137,21 @@ python scripts/init\_schema.py
 | A1 | 安装 Git 并配置身份 | `git --version` 有输出 |
 | A2 | Git 账号加入仓库（用户名发组长） | 能 `git clone` 仓库 |
 | A3 | 安装 VS Code / PyCharm（含 Python 插件） | 能打开 `D:\code\graphRAG` |
-| A4 | 装 Miniconda，创建 `graphragexpr` 环境（**Python 3.12**） | `conda activate graphragexpr` 成功 |
-| A5 | `python -m pip install -r requirements.txt` | `import flask, neo4j, openai` 成功 |
-| A6 | **通读 docs/ 下 4 份文档**（README / API_CONTRACT / DATA_PLAN / SCHEMA） | 组会能说出自己模块的输入/输出 |
-| A7 | 确认本周可用时间，锁定 9/7、9/13 | 组会确认 |
+| A4 | **Python 3.12 环境**（任选其一）<br>① `.venv`（组长同款，推荐）：装 Python 3.12 → 项目内建 `.venv`<br>② Miniconda：`conda create -n graphragexpr python=3.12`<br>**勿用 3.14** | `python --version` 显示 3.12.x |
+| A5 | 安装依赖：`python -m pip install -r requirements.txt`<br>（`.venv` 则用 `.venv\Scripts\python.exe -m pip ...`） | `import flask, neo4j, openai` 成功 |
+| A6 | **Docker Desktop**（跑 Neo4j）：安装并启动，确认引擎 Running。<br>拉不动镜像的解法见 6.4「常见坑」 | `docker ps` 有输出 |
+| A7 | **通读 docs/ 下 4 份文档**（README / API_CONTRACT / DATA_PLAN / SCHEMA） | 组会能说出自己模块的输入/输出 |
+| A8 | 确认本周可用时间，锁定 9/7、9/13 | 组会确认 |
+
+**组员 clone 后 5 分钟自检**（装完上面 A1–A6 后依次执行）：
+
+```
+git clone https://github.com/czh881177/GraphRAG.git
+powershell -ExecutionPolicy Bypass -File .\setup.ps1          # 4/4 全绿
+.\start_neo4j.ps1                                              # 起 Neo4j（幂等）
+.\.venv\Scripts\python.exe scripts\init_schema.py              # 建索引
+.\start_backend.ps1                                            # 后端 http://localhost:5000
+```
 
 ### 6.2 角色专项准备
 
@@ -165,6 +176,7 @@ python scripts/init\_schema.py
 |---|---|
 | conda 命令找不到 | 用 **Anaconda Prompt** 打开再 `conda activate graphragexpr` |
 | Python 版本装错 | 环境必须是 **3.12**（3.14 会导致部分库不兼容） |
+| **Docker 拉不动 neo4j 镜像** | 国内直连 Docker Hub 常被墙、部分加速器已失效（Docker Desktop 的 containerd 模式下 daemon 镜像源不生效）。**改用镜像前缀拉取**：<br>`docker pull docker.m.daocloud.io/library/neo4j:5-community`<br>`docker tag docker.m.daocloud.io/library/neo4j:5-community neo4j:5-community`<br>再运行 `start_neo4j.ps1` |
 | Neo4j 密码不一致 | 默认 `neo4j/12345678`；改密码须同步 `.env` |
 | 向量索引查询报错 | Chunk 写入时必须带 `embedding` 属性（见 SCHEMA §6） |
 | API key 泄漏 | `.env` 不入库；不截图发群；泄露立即在控制台重置 |
