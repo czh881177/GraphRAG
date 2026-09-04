@@ -92,6 +92,12 @@ python scripts/init\_schema.py
 \# 浏览器打开 frontend/index.html
 ```
 
+> **组长机环境状态（2026-09-04 已就绪）**：本机 `.venv`（Python 3.12.10）依赖已装全，`.env` 已填 DeepSeek key，Neo4j 容器（`neo4j:5-community`，端口 7474/7687，`neo4j/12345678`）运行中，`init_schema.py` 已建索引。以后重开电脑只需两步：
+> 1. 打开 Docker Desktop → 运行 `powershell -ExecutionPolicy Bypass -File .\start_neo4j.ps1`（幂等，已在运行则跳过）
+> 2. 启动后端 `.\start_backend.ps1`
+>
+> 团队其他成员按第 3 节 5 步自行配置（Docker 拉不到镜像时，用镜像前缀：`docker pull docker.m.daocloud.io/library/neo4j:5-community` 后 `docker tag` 成 `neo4j:5-community`）。
+
 ## 4. 团队协作约定（组长 A 制定）
 
 
