@@ -55,7 +55,7 @@ graphRAG/
 
 │   └── processed/      # 清洗分块后的语料
 
-├── docs/               # 契约 / 数据方案 / Schema / 准备清单 / 汇报框架
+├── docs/               # 契约 / 数据方案 / Schema / 准备清单
 
 ├── scripts/            # 环境检查 / Schema 初始化
 
@@ -64,75 +64,8 @@ graphRAG/
 └── .env.example        # 环境变量模板（复制为 .env 并填写）
 ```
 
-## 3. 快速开始（5 步）
 
-> 组员开工前：请先完成 `docs/PREP_CHECKLIST.md` 中的准备项（通用准备 + 角色专项），再按下列步骤执行。
->
-> **一句话理解整个流程**：装好依赖 → 启动图数据库 Neo4j → 建好"表结构和索引" → 把医药语料灌进图里 → 启动问答服务。
-
-### 第 1 步：配置环境变量（告诉程序"连哪个库、用哪把钥匙"）
-
-把模板复制成 `.env`（真实的配置文件，不会提交到 Git）：
-
-```
-copy .env.example .env
-```
-
-然后打开 `.env`，确认/填写：
-- Neo4j 账号密码：默认 `neo4j / 12345678`，没改过密码就不用动
-- `LLM_TOKEN`：你的 **DeepSeek API key**（必填，否则问答生成不了）
-
-> ✅ 验证：`.env` 里 `NEO4J_URL` / `NEO4J_USER` / `NEO4J_PASSWORD` / `LLM_TOKEN` 都有值。
-
-### 第 2 步：启动图数据库 Neo4j（跑在 Docker 里）
-
-```
-powershell -ExecutionPolicy Bypass -File .\start_neo4j.ps1
-```
-
-脚本会自动：检查 Docker → 找到/创建 `neo4j` 容器 → 启动并等它就绪（已运行则直接跳过，可反复执行）。
-如果 Docker 拉不到镜像，用 6.4「常见坑」里的镜像前缀命令。
-
-> ✅ 验证：看到「Neo4j 就绪」；浏览器打开 `http://localhost:7474` 能登录（`neo4j / 12345678`）。
-
-### 第 3 步：初始化数据库结构（建"表"和"索引"）
-
-```
-.\.venv\Scripts\python.exe scripts\init_schema.py
-```
-
-（conda 用户用：`python scripts/init_schema.py`）
-这个脚本建好约束、向量索引、全文索引和 6 类实体索引，**可反复执行**（幂等）。
-
-> ✅ 验证：输出里各项全部打勾（✓），无红叉。
-
-### 第 4 步：构建医药知识图谱（把语料灌进图里）【B 负责，9/13 前】
-
-⚠ 当前 `build_kg_dyn.py` 仍是《红楼梦》的占位逻辑，B 正在按 `docs/DATA_PLAN.md` / `docs/SCHEMA.md` 改造成医药版。改造完成后执行：
-
-```
-python graphragexpr/extract/build_kg_dyn.py
-```
-
-> ✅ 验证：脚本末尾显示「总节点数 / 总关系数」，目标 ≥300 实体 / ≥500 关系。
-
-### 第 5 步：启动后端 + 打开前端（看效果）
-
-```
-.\start_backend.ps1
-```
-
-再在浏览器打开 `frontend/index.html`，就可以浏览知识图谱、提问问答。
-
-> ✅ 验证：后端启动后访问 `http://localhost:5000/api/health` 返回 `{"status":"ok"}`。
-
-> **组长机环境状态（2026-09-04 已就绪）**：本机 `.venv`（Python 3.12.10）依赖已装全，`.env` 已填 DeepSeek key，Neo4j 容器（`neo4j:5-community`，端口 7474/7687，`neo4j/12345678`）运行中，`init_schema.py` 已建索引。以后重开电脑只需两步：
-> 1. 打开 Docker Desktop → 运行 `powershell -ExecutionPolicy Bypass -File .\start_neo4j.ps1`（幂等，已在运行则跳过）
-> 2. 启动后端 `.\start_backend.ps1`
->
-> 团队其他成员按第 3 节 5 步自行配置（Docker 拉不到镜像时，用镜像前缀：`docker pull docker.m.daocloud.io/library/neo4j:5-community` 后 `docker tag` 成 `neo4j:5-community`）。
-
-## 4. 团队协作约定（组长 A 制定）
+## 3. 团队协作约定（组长 A 制定）
 
 
 
@@ -146,7 +79,7 @@ python graphragexpr/extract/build_kg_dyn.py
 | 站会     | 每天 10 分钟：昨日完成 / 今日计划 / 阻塞                             |
 | 写库     | 由 B 串行执行（避免并发覆盖），其余成员只读                               |
 
-## 5. 成员分工速览
+## 4. 成员分工速览
 
 
 
@@ -160,11 +93,11 @@ python graphragexpr/extract/build_kg_dyn.py
 
 详细分工见 `docs/PREP_CHECKLIST.md` 与团队计划。
 
-## 6. 项目前准备清单（组员必读）
+## 5. 项目前准备清单（组员必读）
 
 > 完整版见 `docs/PREP_CHECKLIST.md`。以下为要点，卡住第一时间在群里提出。
 
-### 6.1 全员通用准备
+### 5.1 全员通用准备
 
 | # | 事项 | 验收标准 |
 |---|---|---|
@@ -173,8 +106,8 @@ python graphragexpr/extract/build_kg_dyn.py
 | A3 | 安装 VS Code / PyCharm（含 Python 插件） | 能打开 `D:\code\graphRAG` |
 | A4 | **Python 3.12 环境**（任选其一）<br>① `.venv`（组长同款，推荐）：装 Python 3.12 → 项目内建 `.venv`<br>② Miniconda：`conda create -n graphragexpr python=3.12`<br>**勿用 3.14** | `python --version` 显示 3.12.x |
 | A5 | 安装依赖：`python -m pip install -r requirements.txt`<br>（`.venv` 则用 `.venv\Scripts\python.exe -m pip ...`） | `import flask, neo4j, openai` 成功 |
-| A6 | **Docker Desktop**（跑 Neo4j）：安装并启动，确认引擎 Running。<br>拉不动镜像的解法见 6.4「常见坑」 | `docker ps` 有输出 |
-| A7 | **通读 docs/ 下文档**API_CONTRACT / DATA_PLAN / SCHEMA） 
+| A6 | **Docker Desktop**（跑 Neo4j）：安装并启动，确认引擎 Running。<br>拉不动镜像的解法见 5.4「常见坑」 | `docker ps` 有输出 |
+| A7 | **通读 docs/ 下文档**（README / API_CONTRACT / DATA_PLAN / SCHEMA） | 组会能说出自己模块的输入/输出 |
 
 **自检**（装完上面 A1–A6 后依次执行）：
 
@@ -186,7 +119,7 @@ powershell -ExecutionPolicy Bypass -File .\setup.ps1          # 4/4 全绿
 .\start_backend.ps1                                            # 后端 http://localhost:5000
 ```
 
-### 6.2 角色专项准备
+### 5.2 角色专项准备
 
 | 角色 | 专项要点 |
 |---|---|
@@ -195,7 +128,7 @@ powershell -ExecutionPolicy Bypass -File .\setup.ps1          # 4/4 全绿
 | **D 后端 API** | 通读 `backend/api.py`；装 Postman/curl；Neo4j 起来后跑通 `GET /api/health`；精读 `API_CONTRACT.md` |
 | **E 前端可视化** | 通读 `frontend/index.html`；会用 Chrome DevTools；复习 D3 力导向图 API；确认 `lib/` 本地库存在 |
 
-### 6.3 验收
+### 5.3 验收
 
 - [ ] 全员 clone 到本地
 - [ ] 每人 `setup.ps1` 跑一遍，4 项检查全绿
@@ -203,7 +136,7 @@ powershell -ExecutionPolicy Bypass -File .\setup.ps1          # 4/4 全绿
 - [ ] `.env` 已配置
 - [ ] 组会完成：任务认领、本体类型表初稿、10 个测试问题初稿、站会时间确定
 
-### 6.4 常见坑（提前避雷）
+### 5.4 常见坑（提前避雷）
 
 | 坑 | 解决 |
 |---|---|
