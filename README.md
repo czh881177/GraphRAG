@@ -55,7 +55,7 @@ graphRAG/
 
 │   └── processed/      # 清洗分块后的语料
 
-├── docs/               # 契约 / 数据方案 / Schema / 汇报框架
+├── docs/               # 契约 / 数据方案 / Schema / 准备清单 / 汇报框架
 
 ├── scripts/            # 环境检查 / Schema 初始化
 
@@ -65,6 +65,8 @@ graphRAG/
 ```
 
 ## 3. 快速开始（5 步）
+
+> 组员开工前：请先完成 `docs/PREP_CHECKLIST.md` 中的准备项（通用准备 + 角色专项），再按下列步骤执行。
 
 
 
@@ -117,3 +119,47 @@ python scripts/init\_schema.py
 | E 前端      | D3 可视化・问答面板     | 图可视化可展示（9/13）          |
 
 详细分工见 `docs/WEEK1_REPORT.md` 与团队计划。
+
+## 6. 项目前准备清单（组员必读）
+
+> 完整版见 `docs/PREP_CHECKLIST.md`。以下为要点，截止 **9/7 第一次组会前**完成通用准备；卡住第一时间在群里提出。
+
+### 6.1 全员通用准备（9/7 前）
+
+| # | 事项 | 验收标准 |
+|---|---|---|
+| A1 | 安装 Git 并配置身份 | `git --version` 有输出 |
+| A2 | Git 账号加入仓库（用户名发组长） | 能 `git clone` 仓库 |
+| A3 | 安装 VS Code / PyCharm（含 Python 插件） | 能打开 `D:\code\graphRAG` |
+| A4 | 装 Miniconda，创建 `graphragexpr` 环境（**Python 3.12**） | `conda activate graphragexpr` 成功 |
+| A5 | `python -m pip install -r requirements.txt` | `import flask, neo4j, openai` 成功 |
+| A6 | **通读 docs/ 下 4 份文档**（README / API_CONTRACT / DATA_PLAN / SCHEMA） | 组会能说出自己模块的输入/输出 |
+| A7 | 确认本周可用时间，锁定 9/7、9/13 | 组会确认 |
+
+### 6.2 角色专项准备
+
+| 角色 | 专项要点 |
+|---|---|
+| **B 数据/图谱** | 定 20–40 篇医药语料来源并收集到 `data/raw/`（每篇一个 .txt）；装 pandas；准备 6 类本体类型表初稿；会 Neo4j Browser 查数（`MATCH (n) RETURN n LIMIT 25`） |
+| **C 检索/生成** | 拿 DeepSeek key 并各测 1 次 chat 调用；测 embedding（不可用则走哈希降级）；通读 `rag_graph.py` / `rag_vector.py` / `external_embedder.py`；备 10 个测试问题（单跳/多跳/跨实体） |
+| **D 后端 API** | 通读 `backend/api.py`；装 Postman/curl；Neo4j 起来后跑通 `GET /api/health`；精读 `API_CONTRACT.md` |
+| **E 前端可视化** | 通读 `frontend/index.html`；会用 Chrome DevTools；复习 D3 力导向图 API；确认 `lib/` 本地库存在 |
+
+### 6.3 开工第一天（9/7）验收
+
+- [ ] 全员 clone 到本地
+- [ ] 每人 `setup.ps1` 跑一遍，4 项检查全绿
+- [ ] Neo4j 启动，`python scripts/init_schema.py` 成功
+- [ ] `.env` 已配置
+- [ ] 组会完成：任务认领、本体类型表初稿、10 个测试问题初稿、站会时间确定
+
+### 6.4 常见坑（提前避雷）
+
+| 坑 | 解决 |
+|---|---|
+| conda 命令找不到 | 用 **Anaconda Prompt** 打开再 `conda activate graphragexpr` |
+| Python 版本装错 | 环境必须是 **3.12**（3.14 会导致部分库不兼容） |
+| Neo4j 密码不一致 | 默认 `neo4j/12345678`；改密码须同步 `.env` |
+| 向量索引查询报错 | Chunk 写入时必须带 `embedding` 属性（见 SCHEMA §6） |
+| API key 泄漏 | `.env` 不入库；不截图发群；泄露立即在控制台重置 |
+| 中文乱码 | 脚本已设 `PYTHONIOENCODING=utf-8`；文本文件统一 UTF-8 |
