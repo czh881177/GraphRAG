@@ -67,32 +67,64 @@ graphRAG/
 ## 3. 快速开始（5 步）
 
 > 组员开工前：请先完成 `docs/PREP_CHECKLIST.md` 中的准备项（通用准备 + 角色专项），再按下列步骤执行。
+>
+> **一句话理解整个流程**：装好依赖 → 启动图数据库 Neo4j → 建好"表结构和索引" → 把医药语料灌进图里 → 启动问答服务。
 
+### 第 1 步：配置环境变量（告诉程序"连哪个库、用哪把钥匙"）
 
+把模板复制成 `.env`（真实的配置文件，不会提交到 Git）：
 
 ```
-# 1. 配置环境变量
-
-copy .env.example .env        # 然后编辑 .env 填入 Neo4j / DeepSeek 凭据
-
-# 2. 启动 Neo4j（本机或 Docker），确认 7687 端口可连
-
-# 3. 初始化数据库 Schema 与索引（幂等）
-
-python scripts/init_schema.py
-
-# 4. 构建医药知识图谱（语料放入 data/raw/）
-
-#    ⚠ 当前 build_kg_dyn.py 为基线占位（仍为《红楼梦》抽取逻辑），
-#    由 B 在 9/13 前按 DATA_PLAN / SCHEMA 改造为医药版（6 类本体 + 读 data/processed）
-#    （B 完成 data/processed 后）python graphragexpr/extract/build_kg_dyn.py
-
-# 5. 启动后端 + 打开前端
-
-./start_backend.ps1           # http://localhost:5000
-
-# 浏览器打开 frontend/index.html
+copy .env.example .env
 ```
+
+然后打开 `.env`，确认/填写：
+- Neo4j 账号密码：默认 `neo4j / 12345678`，没改过密码就不用动
+- `LLM_TOKEN`：你的 **DeepSeek API key**（必填，否则问答生成不了）
+
+> ✅ 验证：`.env` 里 `NEO4J_URL` / `NEO4J_USER` / `NEO4J_PASSWORD` / `LLM_TOKEN` 都有值。
+
+### 第 2 步：启动图数据库 Neo4j（跑在 Docker 里）
+
+```
+powershell -ExecutionPolicy Bypass -File .\start_neo4j.ps1
+```
+
+脚本会自动：检查 Docker → 找到/创建 `neo4j` 容器 → 启动并等它就绪（已运行则直接跳过，可反复执行）。
+如果 Docker 拉不到镜像，用 6.4「常见坑」里的镜像前缀命令。
+
+> ✅ 验证：看到「Neo4j 就绪」；浏览器打开 `http://localhost:7474` 能登录（`neo4j / 12345678`）。
+
+### 第 3 步：初始化数据库结构（建"表"和"索引"）
+
+```
+.\.venv\Scripts\python.exe scripts\init_schema.py
+```
+
+（conda 用户用：`python scripts/init_schema.py`）
+这个脚本建好约束、向量索引、全文索引和 6 类实体索引，**可反复执行**（幂等）。
+
+> ✅ 验证：输出里各项全部打勾（✓），无红叉。
+
+### 第 4 步：构建医药知识图谱（把语料灌进图里）【B 负责，9/13 前】
+
+⚠ 当前 `build_kg_dyn.py` 仍是《红楼梦》的占位逻辑，B 正在按 `docs/DATA_PLAN.md` / `docs/SCHEMA.md` 改造成医药版。改造完成后执行：
+
+```
+python graphragexpr/extract/build_kg_dyn.py
+```
+
+> ✅ 验证：脚本末尾显示「总节点数 / 总关系数」，目标 ≥300 实体 / ≥500 关系。
+
+### 第 5 步：启动后端 + 打开前端（看效果）
+
+```
+.\start_backend.ps1
+```
+
+再在浏览器打开 `frontend/index.html`，就可以浏览知识图谱、提问问答。
+
+> ✅ 验证：后端启动后访问 `http://localhost:5000/api/health` 返回 `{"status":"ok"}`。
 
 > **组长机环境状态（2026-09-04 已就绪）**：本机 `.venv`（Python 3.12.10）依赖已装全，`.env` 已填 DeepSeek key，Neo4j 容器（`neo4j:5-community`，端口 7474/7687，`neo4j/12345678`）运行中，`init_schema.py` 已建索引。以后重开电脑只需两步：
 > 1. 打开 Docker Desktop → 运行 `powershell -ExecutionPolicy Bypass -File .\start_neo4j.ps1`（幂等，已在运行则跳过）
