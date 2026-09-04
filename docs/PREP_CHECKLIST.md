@@ -1,11 +1,11 @@
 # 项目前准备清单（PREP_CHECKLIST）v1.0
 
-> 制定：组长 A · 面向：全体组员（B/C/D/E）· 截止：**9/7 第一次组会前**完成 A 部分
+> 制定：组长 A · 面向：全体组员（B/C/D/E）· 完成 A 部分
 > 原则：任何一项卡住，第一时间在群里提出，由 A 协调，不要自己闷着装。
 
 ---
 
-## A. 全员通用准备（每个人，9/7 前）
+## A. 全员通用准备（每个人）
 
 | # | 事项 | 具体要求 | 验收标准 |
 |---|---|---|---|
@@ -15,8 +15,7 @@
 | A4 | Python 3.12 环境 | **任选其一**：① 装 Python 3.12 → 项目内建 `.venv`（组长同款，推荐）；② 装 Miniconda → `conda create -n graphragexpr python=3.12`。**勿用 3.14** | `python --version` 显示 3.12.x |
 | A5 | 安装依赖 | 在环境内执行 `python -m pip install -r requirements.txt`（.venv 则用 `.venv\Scripts\python.exe -m pip ...`） | 无报错；`import flask, neo4j, openai` 成功 |
 | A6 | **Docker Desktop**（跑 Neo4j） | 安装并启动 Docker Desktop，确认引擎 Running。**拉不到镜像的坑见下"常见坑"表** | `docker ps` 有输出 |
-| A7 | 通读 4 份文档 | 开会前必读（见下方"必读清单"），每人至少读到自己角色相关章节 | 组会能说出自己模块的输入/输出 |
-| A8 | 时间确认 | 填写本周可用时间（课表外），确认 9/7、9/13 两个关键日 | 组会上确认 |
+| A7 | 通读 4 份文档 | 必读（见下方"必读清单"），每人至少读到自己角色相关章节 | 组会能说出自己模块的输入/输出 |
 
 **必读清单（仓库 `docs/` 目录）**
 - `README.md` —— 项目全貌 + 协作约定（分支/提交/站会）
@@ -63,24 +62,10 @@
 
 ---
 
-## C. 开工第一天（9/7 周一）验收
+## 验收
 
 - [ ] 全员 clone 到本地（A 确认仓库可访问）
 - [ ] 每人 `setup.ps1` 跑一遍，**4 项检查全绿**（或明确记录哪一项由 A 统一解决）
 - [ ] Neo4j 已启动，`python scripts/init_schema.py` 执行成功（A 或 B 操作）
 - [ ] `.env` 已配置（A 统一填写，或各自 copy 后填）
 - [ ] 组会完成：任务认领、本体类型表初稿、10 个测试问题初稿、每日站会时间确定
-
----
-
-## D. 常见坑（提前避雷）
-
-| 坑 | 解决 |
-|---|---|
-| conda 命令找不到 | 用 **Anaconda Prompt**（开始菜单）打开再 `conda activate graphragexpr` |
-| Python 版本装错 | 环境必须是 **3.12**（3.14 会导致部分库不兼容） |
-| **Docker 拉不动 neo4j 镜像** | 国内直连 Docker Hub 常被墙、部分加速器已失效。**改用镜像前缀拉取**（Docker Desktop 的 containerd 模式下 daemon 镜像源配置不生效）：`docker pull docker.m.daocloud.io/library/neo4j:5-community` 后 `docker tag docker.m.daocloud.io/library/neo4j:5-community neo4j:5-community`，再运行 `start_neo4j.ps1` |
-| Neo4j 密码不一致 | 默认 `neo4j / 12345678`；改过密码要同步改 `.env` 的 `NEO4J_PASSWORD` |
-| 向量索引查询报错 | Chunk 写入时必须带 `embedding` 属性（见 SCHEMA §6） |
-| API key 泄漏 | `.env` 不入库；任何人不要截图发群；泄露立即在 DeepSeek 控制台重置 |
-| 中文乱码 | PowerShell 脚本已设 `PYTHONIOENCODING=utf-8`；文本文件统一 UTF-8 |
