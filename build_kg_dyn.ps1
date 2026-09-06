@@ -1,8 +1,9 @@
-﻿# build_kg_dyn.ps1
-# Script to build knowledge graph from source text (pharma edition)
+# build_kg_dyn.ps1
+# 医药 GraphRAG · 建图管线（B 数据/图谱 入口）
+# 前置：.venv（Python 3.12）+ Neo4j 已启动 + scripts/init_schema.py 已初始化索引
 
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "Building Knowledge Graph" -ForegroundColor Cyan
+Write-Host "Building Knowledge Graph (医药版)" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -19,61 +20,30 @@ if (Test-Path "$PSScriptRoot\.venv\Scripts\python.exe") {
     exit 1
 }
 
-# Check if Neo4j is running
-Write-Host "Checking Neo4j connection..." -ForegroundColor Yellow
 $env:PYTHONIOENCODING = "utf-8"
+
+# 1) Neo4j 连通性
+Write-Host "1/4 检查 Neo4j 连接..." -ForegroundColor Yellow
 try {
     $result = & $py -c "from dotenv import load_dotenv; load_dotenv(); import os; from neo4j import GraphDatabase; driver = GraphDatabase.driver(os.getenv('NEO4J_URL'), auth=(os.getenv('NEO4J_USER'), os.getenv('NEO4J_PASSWORD'))); driver.verify_connectivity(); print('OK')"
-    if ($result -eq "OK") {
-        Write-Host "✓ Neo4j connected" -ForegroundColor Green
-    }
+    if ($result -eq "OK") { Write-Host "✓ Neo4j connected" -ForegroundColor Green }
 } catch {
-    Write-Host "✗ Neo4j connection failed" -ForegroundColor Red
-    Write-Host "Please start Neo4j first" -ForegroundColor Yellow
+    Write-Host "✗ Neo4j connection failed，请先启动 Neo4j" -ForegroundColor Red
     exit 1
 }
 
-Write-Host ""
-Write-Host "Testing data extraction..." -ForegroundColor Yellow
-& $py graphragexpr\extract\sample_data_dyn.py
+# 2) 语料分块
+Write-Host "2/4 清洗并分块语料 -> data/processed/chunks.json ..." -ForegroundColor Yellow
+& $py "$PSScriptRoot\scripts\prepare_corpus.py"
 
-Write-Host ""
-Write-Host "Building knowledge graph..." -ForegroundColor Yellow
-Write-Host ""
+# 3) 离线抽取结果
+Write-Host "3/4 生成离线抽取结果 -> data/processed/extracted.json ..." -ForegroundColor Yellow
+& $py "$PSScriptRoot\scripts\generate_extracted.py"
 
-& $py graphragexpr\extract\build_kg_dyn.py
-
-Write-Host ""
-Write-Host "Creating vector index..." -ForegroundColor Yellow
-& $py graphragexpr\extract\create_index.py
-
-Write-Host ""
-Write-Host "Creating fulltext index..." -ForegroundColor Yellow
-& $py -c "
-from neo4j import GraphDatabase
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-driver = GraphDatabase.driver(
-    os.getenv('NEO4J_URL'),
-    auth=(os.getenv('NEO4J_USER'), os.getenv('NEO4J_PASSWORD')),
-)
-
-with driver.session() as session:
-    try:
-        session.run('''
-            CREATE FULLTEXT INDEX text_fulltext IF NOT EXISTS
-            FOR (n:Chunk)
-            ON EACH [n.text]
-        ''')
-        print('✓ Fulltext index created: text_fulltext')
-    except Exception as e:
-        print(f'Error creating fulltext index: {e}')
-
-driver.close()
-"
+# 4) 初始化 Schema（幂等）+ 建图入库
+Write-Host "4/4 初始化 Schema 并建图入库 ..." -ForegroundColor Yellow
+& $py "$PSScriptRoot\scripts\init_schema.py"
+& $py "$PSScriptRoot\graphragexpr\extract\build_kg_dyn.py"
 
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Cyan
