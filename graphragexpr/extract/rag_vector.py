@@ -1,74 +1,90 @@
-# rag_vector.py
 import os
 import sys
 from pathlib import Path
 
-# Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from dotenv import load_dotenv
 from neo4j import GraphDatabase
 from neo4j_graphrag.llm import OpenAILLM
 from neo4j_graphrag.retrievers import VectorRetriever
-from neo4j_graphrag.generation import GraphRAG
-from external_embedder import ExternalEmbedder
+from neo4j_graphrag.embeddings import OpenAIEmbeddings
+from custom_embedder import CustomEmbedder
 
 load_dotenv()
 
-def vector_rag_search(query_text="阿司匹林和布洛芬有什么共同点和区别？"):
-    """Perform basic vector-based RAG search"""
+def vector_rag_search():
     print("正在连接到 Neo4j 数据库...")
-
     driver = GraphDatabase.driver(
-        os.getenv("NEO4J_URL"),
-        auth=(os.getenv("NEO4J_USER"), os.getenv("NEO4J_PASSWORD")),
+        os.getenv("NEO4J_URL", "bolt://localhost:7687"),
+        auth=(os.getenv("NEO4J_USER", "neo4j"), os.getenv("NEO4J_PASSWORD", "12345678"))
     )
-
     try:
         driver.verify_connectivity()
-        print("✓ Neo4j 数据库连接成功")
+        print("✅ Neo4j 数据库连接成功")
     except Exception as e:
-        print(f"✗ 无法连接到 Neo4j: {e}")
+        print(f"❌ Neo4j 连接失败: {e}")
         return
 
     print("正在初始化向量检索器...")
+    embedder = CustomEmbedder(
+        external=OpenAIEmbeddings(
+            model="text-embedding-3-small",
+            base_url=os.getenv("LLM_ENDPOINT"),
+            api_key=os.getenv("LLM_TOKEN")
+        )
+    )
 
-    embedder = ExternalEmbedder(dimension=1536)
+    try:
+        test_vec = embedder.embed_query("测试")
+        print(f"✅ Embedding 测试成功，向量维度: {len(test_vec)}")
+    except Exception as e:
+        print(f"❌ Embedding 测试失败: {e}")
+        return
 
-    api_key = os.getenv("LLM_TOKEN")
-    base_url = os.getenv("LLM_ENDPOINT", "https://api.deepseek.com")
+    retriever = VectorRetriever(
+        driver=driver,
+        index_name="text_embeddings",
+        embedder=embedder
+    )
 
     llm = OpenAILLM(
         model_name=os.getenv("LLM_MODEL", "deepseek-chat"),
-        api_key=api_key,
-        base_url=base_url,
+        base_url=os.getenv("LLM_ENDPOINT"),
+        api_key=os.getenv("LLM_TOKEN"),
         model_params={"temperature": 0}
     )
 
-    vector_retriever = VectorRetriever(
-        driver,
-        index_name="text_embeddings",
-        embedder=embedder,
-        return_properties=["text"],
-    )
+    prompt_template = """
+你是一个医药知识助手。请仅根据以下提供的上下文回答问题。
+如果上下文中没有相关信息，请直接说"根据现有知识无法回答"，不要编造。
 
-    rag = GraphRAG(retriever=vector_retriever, llm=llm)
+上下文：
+{context}
 
-    print(f"\n问题: {query_text}")
-    print("正在检索并生成答案...\n")
+问题：{query}
+答案：
+"""
 
-    response = rag.search(
-        query_text=query_text,
-        retriever_config={"top_k": 5},
-    )
+    while True:
+        query = input("\n请输入问题（输入 exit 退出）：")
+        if query.lower() == "exit":
+            break
+        if not query.strip():
+            print("⚠️ 输入不能为空，请重新输入")
+            continue
 
-    print("=" * 60)
-    print("基于向量检索的 RAG 回答:")
-    print("=" * 60)
-    print(response.answer)
-    print("=" * 60)
-
-    driver.close()
+        print(f"\n🔍 正在检索：{query}")
+        try:
+            query_vector = embedder.embed_query(query)
+            result = retriever.search(query_vector=query_vector, top_k=5)
+            context = "\n".join([item.content for item in result.items])
+            response = llm.invoke(
+                prompt_template.format(context=context, query=query)
+            )
+            print(f"\n✅ 答案：{response}")
+        except Exception as e:
+            print(f"❌ 检索失败: {e}")
 
 if __name__ == "__main__":
     vector_rag_search()
