@@ -14,148 +14,220 @@ from dotenv import load_dotenv
 from neo4j import GraphDatabase
 from openai import OpenAI
 import json
-from external_embedder import ExternalEmbedder
-from sample_data import TEXT
+from custom_embedder import CustomEmbedder
+from neo4j_graphrag.embeddings import OpenAIEmbeddings
 
+# 加载环境变量
 load_dotenv()
 
-# Sample text data
+# 使用内置示例文本（如果有 sample_data 则优先使用）
+try:
+    from sample_data import TEXT
+    print("✅ 使用 sample_data.TEXT")
+except ImportError:
+    print("⚠️ 使用内置示例文本")
+    TEXT = """
+阿司匹林是一种非甾体抗炎药，通过抑制环氧合酶（COX）发挥解热镇痛作用。
+布洛芬也是一种非甾体抗炎药，同样通过抑制COX发挥作用。
+拜耳公司研发了阿司匹林，而布洛芬最初由Boots公司研发。
+"""
+
 
 def extract_entities_and_relations(text, client):
     """Use LLM to extract entities and relationships"""
-    prompt = f"""请从以下文本中提取实体和关系。
+    prompt = f"""
+请从以下文本中提取医药相关的实体和关系。
 
 文本：
 {text}
 
-你需要自行决定本体类型和关系类型，尽可能地提取更多的实体和关系，不要局限于明显的部分，也需要推断语义潜在的实体和关系。
-
-请以JSON格式返回，格式如下：
+请以JSON格式输出，格式如下：
 {{
-  "entities": [
-    {{"name": "实体名称", "type": "实体类型"}}
-  ],
-  "relationships": [
-    {{"source": "源实体", "target": "目标实体", "type": "关系类型"}}
-  ]
+    "entities": [
+        {{"name": "实体名", "type": "实体类型"}}
+    ],
+    "relationships": [
+        {{"source": "源实体名", "target": "目标实体名", "type": "关系类型"}}
+    ]
 }}
 
-只返回JSON，不要其他说明文字。"""
-
-    response = client.chat.completions.create(
-        model=os.getenv("LLM_MODEL", "deepseek-chat"),
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0
-    )
-
-    result_text = response.choices[0].message.content.strip()
-
-    # Extract JSON from response (handle markdown code blocks)
-    if "```json" in result_text:
-        result_text = result_text.split("```json")[1].split("```")[0].strip()
-    elif "```" in result_text:
-        result_text = result_text.split("```")[1].split("```")[0].strip()
+只输出JSON，不要有其他内容。
+"""
 
     try:
-        return json.loads(result_text)
+        response = client.chat.completions.create(
+            model=os.getenv("LLM_MODEL", "deepseek-chat"),
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0
+        )
+        result_text = response.choices[0].message.content.strip()
+        print(f"📝 LLM 原始响应: {result_text[:200]}...")
+
+        # 处理 markdown 代码块
+        if "```json" in result_text:
+            result_text = result_text.split("```json")[1].split("```")[0].strip()
+        elif "```" in result_text:
+            result_text = result_text.split("```")[1].split("```")[0].strip()
+
+        data = json.loads(result_text)
+        print(f"🔍 解析到 {len(data.get('entities', []))} 个实体，{len(data.get('relationships', []))} 个关系")
+        return data
     except json.JSONDecodeError as e:
-        print(f"Failed to parse JSON: {e}")
-        print(f"Response: {result_text}")
+        print(f"❌ JSON 解析失败: {e}")
+        print(f"原始响应: {result_text}")
         return {"entities": [], "relationships": []}
+    except Exception as e:
+        print(f"❌ LLM 调用失败: {e}")
+        return {"entities": [], "relationships": []}
+
 
 def build_knowledge_graph():
     """Build knowledge graph manually"""
-    print("正在连接到 Neo4j 数据库...")
+    print("=" * 50)
+    print("🔄 开始构建知识图谱...")
+    print("=" * 50)
+
+    # 连接 Neo4j
+    neo4j_url = os.getenv("NEO4J_URL", "bolt://localhost:7687")
+    neo4j_user = os.getenv("NEO4J_USER", "neo4j")
+    neo4j_password = os.getenv("NEO4J_PASSWORD", "12345678")
+
+    print(f"📌 连接到 Neo4j: {neo4j_url}")
 
     driver = GraphDatabase.driver(
-        os.getenv("NEO4J_URL"),
-        auth=(os.getenv("NEO4J_USER"), os.getenv("NEO4J_PASSWORD")),
+        neo4j_url,
+        auth=(neo4j_user, neo4j_password)
     )
 
     try:
         driver.verify_connectivity()
-        print("✓ Neo4j 数据库连接成功")
+        print("✅ Neo4j 连接成功")
     except Exception as e:
-        print(f"✗ 无法连接到 Neo4j: {e}")
+        print(f"❌ Neo4j 连接失败: {e}")
         return
 
-    print("正在初始化 LLM...")
+    # 初始化 LLM
+    print("📌 初始化 LLM...")
     client = OpenAI(
         api_key=os.getenv("LLM_TOKEN"),
-        base_url=os.getenv("LLM_ENDPOINT", "https://api.deepseek.com")
+        base_url=os.getenv("LLM_ENDPOINT", "https://api.deepseek.com/v1")
     )
 
-    print("正在使用 LLM 提取实体和关系...")
+    # 用 LLM 抽取实体关系
+    print("📌 正在用 LLM 抽取实体和关系...")
     data = extract_entities_and_relations(TEXT, client)
 
-    print(f"✓ 提取到 {len(data['entities'])} 个实体和 {len(data['relationships'])} 个关系")
+    entities = data.get("entities", [])
+    relationships = data.get("relationships", [])
 
-    # Create embedder
-    embedder = ExternalEmbedder(dimension=1536)
+    print(f"✅ 抽取完成: {len(entities)} 个实体, {len(relationships)} 个关系")
+
+    if len(entities) == 0:
+        print("⚠️ 没有抽取到任何实体，请检查 LLM 响应")
+        driver.close()
+        return
+
+    # 生成文本向量
+    print("📌 生成文本向量...")
+    embedder = CustomEmbedder(
+        external=OpenAIEmbeddings(
+            model="text-embedding-3-small",
+            base_url=os.getenv("LLM_ENDPOINT"),
+            api_key=os.getenv("LLM_TOKEN")
+        )
+    )
     text_embedding = embedder.embed_query(TEXT)
 
-    print("正在将数据写入 Neo4j...")
-
+    # 写入 Neo4j
+    print("📌 正在写入 Neo4j...")
     with driver.session() as session:
-        # Clear existing data
+        # 清空现有数据
         session.run("MATCH (n) DETACH DELETE n")
+        print("   ✅ 已清空现有数据")
 
-        # Create Document and Chunk nodes
-        session.run("""
+        # 创建 Document 和 Chunk
+        result = session.run(
+            """
             CREATE (d:Document {id: 'doc2', text: $text})
             CREATE (c:Chunk {id: 'chunk2', text: $text, embedding: $embedding})
             CREATE (c)-[:PART_OF]->(d)
-        """, text=TEXT, embedding=text_embedding)
+            RETURN elementId(c) AS chunk_id
+            """,
+            text=TEXT,
+            embedding=text_embedding
+        )
+        chunk_id = result.single()["chunk_id"]
+        print(f"   ✅ 创建了 Document 和 Chunk (ID: {chunk_id})")
 
-        # Create entity nodes
+        # 创建实体节点
         entity_map = {}
-        for entity in data['entities']:
-            name = entity['name']
-            entity_type = entity['type']
+        for entity in entities:
+            name = entity["name"]
+            entity_type = entity["type"]
+            try:
+                result = session.run(
+                    f"""
+                    MERGE (e:{entity_type} {{name: $name}})
+                    RETURN elementId(e) AS id
+                    """,
+                    name=name
+                )
+                entity_map[name] = result.single()["id"]
+            except Exception as e:
+                print(f"   ⚠️ 创建实体 {name} 失败: {e}")
+        print(f"   ✅ 创建了 {len(entity_map)} 个实体节点")
 
-            result = session.run(f"""
-                MERGE (e:`{entity_type}` {{name: $name}})
-                RETURN elementId(e) AS id
-            """, name=name)
-
-            entity_map[name] = result.single()['id']
-
-        # Link entities to chunk
-        for entity_name in entity_map.keys():
-            session.run("""
+        # 链接实体到 Chunk
+        for entity_name, entity_id in entity_map.items():
+            session.run(
+                """
                 MATCH (e) WHERE elementId(e) = $entity_id
-                MATCH (c:Chunk {id: 'chunk2'})
+                MATCH (c:Chunk) WHERE elementId(c) = $chunk_id
                 MERGE (e)-[:FROM_CHUNK]->(c)
-            """, entity_id=entity_map[entity_name])
+                """,
+                entity_id=entity_id,
+                chunk_id=chunk_id
+            )
+        print("   ✅ 实体链接到 Chunk 完成")
 
-        # Create relationships
-        for rel in data['relationships']:
-            source = rel['source']
-            target = rel['target']
-            rel_type = rel['type']
-
+        # 创建关系
+        rel_count = 0
+        for rel in relationships:
+            source = rel["source"]
+            target = rel["target"]
+            rel_type = rel["type"]
             if source in entity_map and target in entity_map:
-                session.run(f"""
-                    MATCH (s) WHERE elementId(s) = $source_id
-                    MATCH (t) WHERE elementId(t) = $target_id
-                    MERGE (s)-[:`{rel_type}`]->(t)
-                """, source_id=entity_map[source], target_id=entity_map[target])
+                try:
+                    session.run(
+                        f"""
+                        MATCH (s) WHERE elementId(s) = $source_id
+                        MATCH (t) WHERE elementId(t) = $target_id
+                        MERGE (s)-[:{rel_type}]->(t)
+                        """,
+                        source_id=entity_map[source],
+                        target_id=entity_map[target]
+                    )
+                    rel_count += 1
+                except Exception as e:
+                    print(f"   ⚠️ 创建关系 {source}-{rel_type}-{target} 失败: {e}")
+        print(f"   ✅ 创建了 {rel_count} 个关系")
 
-    # Verify data
-    print("\n正在验证数据...")
-    with driver.session() as session:
-        count_result = session.run("MATCH (n) RETURN count(n) as count")
+        # 验证数据
+        print("📌 验证数据...")
+        count_result = session.run("MATCH (n) RETURN count(n) AS count")
         node_count = count_result.single()["count"]
-        print(f"✓ 总节点数: {node_count}")
+        print(f"   ✅ 节点总数: {node_count}")
 
-        rel_result = session.run("MATCH ()-[r]->() RETURN count(r) as count")
-        rel_count = rel_result.single()["count"]
-        print(f"✓ 总关系数: {rel_count}")
+        rel_result = session.run("MATCH ()-[r]->() RETURN count(r) AS count")
+        rel_count_total = rel_result.single()["count"]
+        print(f"   ✅ 关系总数: {rel_count_total}")
 
     driver.close()
-    print("\n✓ 知识图谱构建完成!")
-    print("可以在 Neo4j Browser 中运行以下查询查看结果:")
-    print("  MATCH (n) RETURN n LIMIT 100;")
+    print("=" * 50)
+    print("🎉 知识图谱构建完成！")
+    print("📌 可在 Neo4j Browser 中查看: MATCH (n) RETURN n LIMIT 100;")
+    print("=" * 50)
+
 
 if __name__ == "__main__":
     build_knowledge_graph()

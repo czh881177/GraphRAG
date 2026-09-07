@@ -1,49 +1,51 @@
-# custom_embedder.py
 """
-Custom embedder that creates simple embeddings without external API calls
-For demonstration purposes - uses basic text hashing for embeddings
+自定义 Embedder 封装，支持外部 Embedding + 哈希降级
 """
+from typing import List
 import hashlib
 import numpy as np
-from neo4j_graphrag.embeddings.base import Embedder
 
 
-class SimpleHashEmbedder(Embedder):
-    """
-    Simple embedder that creates deterministic embeddings from text hashing.
-    This is for demonstration purposes when OpenAI embeddings are not available.
-    """
+class CustomEmbedder:
+    """自定义 Embedder，优先使用外部 API，失败时降级为哈希"""
 
-    def __init__(self, dimension: int = 1536):
+    def __init__(self, external, dimension: int = 1536):
+        self.external = external
         self.dimension = dimension
 
-    def embed_query(self, text: str) -> list[float]:
-        """Generate a simple embedding from text using hashing"""
-        # Create a deterministic hash-based embedding
-        # Use multiple hash functions to fill the embedding vector
-        embedding = []
+    def embed_query(self, text: str) -> List[float]:
+        """对单个文本进行 embedding"""
+        try:
+            # 尝试调用外部 API
+            result = self.external.embed_query(text)
+            if len(result) != self.dimension:
+                # 如果维度不匹配，截断或填充
+                result = self._fix_dimension(result)
+            return result
+        except Exception as e:
+            print(f"⚠️ 外部 Embedding 失败，降级为哈希: {e}")
+            return self._hash_embed(text)
 
-        for i in range(self.dimension // 16):
-            # Create hash with different seeds
-            hash_input = f"{text}_{i}".encode('utf-8')
-            hash_obj = hashlib.sha256(hash_input)
-            hash_bytes = hash_obj.digest()
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        """批量 embedding"""
+        return [self.embed_query(t) for t in texts]
 
-            # Convert bytes to float values between -1 and 1
-            for j in range(min(16, self.dimension - len(embedding))):
-                if j < len(hash_bytes):
-                    # Normalize to [-1, 1] range
-                    val = (hash_bytes[j] / 255.0) * 2 - 1
-                    embedding.append(val)
+    def _hash_embed(self, text: str) -> List[float]:
+        """哈希降级方案（固定维度）"""
+        h = hashlib.sha256(text.encode()).digest()
+        # 将哈希值映射到 [-1, 1] 范围
+        arr = np.frombuffer(h, dtype=np.uint8).astype(np.float32) / 127.5 - 1.0
+        # 如果长度不够，用重复或填充
+        if len(arr) < self.dimension:
+            arr = np.pad(arr, (0, self.dimension - len(arr)), mode='wrap')
+        else:
+            arr = arr[:self.dimension]
+        return arr.tolist()
 
-        # Fill remaining dimensions if needed
-        while len(embedding) < self.dimension:
-            embedding.append(0.0)
-
-        # Normalize the vector
-        embedding = np.array(embedding)
-        norm = np.linalg.norm(embedding)
-        if norm > 0:
-            embedding = embedding / norm
-
-        return embedding.tolist()
+    def _fix_dimension(self, vec: List[float]) -> List[float]:
+        """修正维度不匹配"""
+        if len(vec) > self.dimension:
+            return vec[:self.dimension]
+        else:
+            # 填充 0
+            return vec + [0.0] * (self.dimension - len(vec))
