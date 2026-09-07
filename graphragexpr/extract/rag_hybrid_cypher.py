@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 from neo4j import GraphDatabase
 from neo4j_graphrag.llm import OpenAILLM
 from neo4j_graphrag.retrievers import HybridCypherRetriever
-from rag_common import build_embedder, build_context, make_retrieval_query, make_text_formatter
+from neo4j_graphrag.embeddings import OpenAIEmbeddings
+from custom_embedder import CustomEmbedder
 
 load_dotenv()
 
@@ -26,7 +27,13 @@ def hybrid_cypher_search():
         return
 
     print("正在初始化 Hybrid+Cypher 检索器（Hybrid + 图展开）...")
-    embedder = build_embedder()
+    embedder = CustomEmbedder(
+        external=OpenAIEmbeddings(
+            model="text-embedding-3-small",
+            base_url=os.getenv("LLM_ENDPOINT"),
+            api_key=os.getenv("LLM_TOKEN")
+        )
+    )
 
     try:
         test_vec = embedder.embed_query("测试")
@@ -35,13 +42,21 @@ def hybrid_cypher_search():
         print(f"❌ Embedding 测试失败: {e}")
         return
 
+    # 无参数版本，直接使用 node 变量
+    retrieval_query = """
+    MATCH (node)
+    OPTIONAL MATCH (node)-[r1]-(neighbor1)
+    OPTIONAL MATCH (neighbor1)-[r2]-(neighbor2) WHERE neighbor2 <> node
+    RETURN node, r1, neighbor1, r2, neighbor2
+    LIMIT 20
+    """
+
     retriever = HybridCypherRetriever(
         driver=driver,
         vector_index_name="text_embeddings",
         fulltext_index_name="text_fulltext",
         embedder=embedder,
-        retrieval_query=make_retrieval_query(),
-        result_formatter=make_text_formatter("text")
+        retrieval_query=retrieval_query
     )
 
     llm = OpenAILLM(
@@ -53,8 +68,7 @@ def hybrid_cypher_search():
 
     prompt_template = """
 你是一个医药知识助手。请根据以下提供的上下文（文本片段 + 知识图谱三元组）回答问题。
-优先使用知识图谱中的关系信息（如：实体[药物] 阿司匹林 -副作用-> 胃肠道出血），文本片段作为补充。
-如果上下文中没有相关信息，请直接说"根据现有知识无法回答"，不要编造。
+优先使用知识图谱中的关系信息，文本片段作为补充。
 
 上下文：
 {context}
@@ -73,8 +87,15 @@ def hybrid_cypher_search():
 
         print(f"\n🔍 正在执行 Hybrid+Cypher 检索（向量+全文+图遍历）...")
         try:
-            result = retriever.search(query_text=query, top_k=8)
-            context = build_context(result.items)
+            result = retriever.search(query_text=query, top_k=5)
+
+            context_parts = []
+            for item in result.items:
+                context_parts.append(item.content)
+                if hasattr(item, 'metadata') and item.metadata:
+                    context_parts.append(str(item.metadata))
+            context = "\n".join(context_parts)
+
             response = llm.invoke(
                 prompt_template.format(context=context, query=query)
             )

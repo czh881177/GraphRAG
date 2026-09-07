@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 from neo4j import GraphDatabase
 from neo4j_graphrag.llm import OpenAILLM
 from neo4j_graphrag.retrievers import VectorRetriever
-from rag_common import build_embedder, build_context, make_text_formatter
+from neo4j_graphrag.embeddings import OpenAIEmbeddings
+from custom_embedder import CustomEmbedder
 
 load_dotenv()
 
@@ -26,7 +27,13 @@ def vector_rag_search():
         return
 
     print("正在初始化向量检索器...")
-    embedder = build_embedder()
+    embedder = CustomEmbedder(
+        external=OpenAIEmbeddings(
+            model="text-embedding-3-small",
+            base_url=os.getenv("LLM_ENDPOINT"),
+            api_key=os.getenv("LLM_TOKEN")
+        )
+    )
 
     try:
         test_vec = embedder.embed_query("测试")
@@ -38,8 +45,7 @@ def vector_rag_search():
     retriever = VectorRetriever(
         driver=driver,
         index_name="text_embeddings",
-        embedder=embedder,
-        result_formatter=make_text_formatter("node")
+        embedder=embedder
     )
 
     llm = OpenAILLM(
@@ -71,8 +77,8 @@ def vector_rag_search():
         print(f"\n🔍 正在检索：{query}")
         try:
             query_vector = embedder.embed_query(query)
-            result = retriever.search(query_vector=query_vector, top_k=8)
-            context = build_context(result.items)
+            result = retriever.search(query_vector=query_vector, top_k=5)
+            context = "\n".join([item.content for item in result.items])
             response = llm.invoke(
                 prompt_template.format(context=context, query=query)
             )
