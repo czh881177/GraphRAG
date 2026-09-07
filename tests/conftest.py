@@ -33,13 +33,19 @@ def neo4j_connection_test(neo4j_driver):
 
 @pytest.fixture
 def clean_database(neo4j_driver):
-    """Clean database before each test"""
+    """只清理测试自己新增的节点，绝不删除测试前已存在的真实图谱数据。
+
+    原理：测试前记录所有节点 elementId 快照，测试后只 DETACH DELETE
+    快照中不存在的节点（即本次测试新建的），真实知识图谱不受影响。
+    """
     with neo4j_driver.session() as session:
-        session.run("MATCH (n) DETACH DELETE n")
+        before = set(session.run("MATCH (n) RETURN elementId(n) AS id").value())
     yield
-    # Cleanup after test
     with neo4j_driver.session() as session:
-        session.run("MATCH (n) DETACH DELETE n")
+        after = set(session.run("MATCH (n) RETURN elementId(n) AS id").value())
+        new_ids = after - before
+        for nid in new_ids:
+            session.run("MATCH (n) WHERE elementId(n) = $id DETACH DELETE n", id=nid)
 
 
 @pytest.fixture(scope="session")
