@@ -2,13 +2,13 @@
 
 > 制定：组长 A · 生效：2026/9/7 · 变更需组长评审后更新本文件
 > 所有接口基于 `backend/api.py`（Flask，端口 5000），已开启 CORS。
-> 前端 `frontend/index.html` 通过 `http://localhost:5000/api` 调用。
+> 调用方（API 客户端 / 汇报演示脚本）通过 `http://localhost:5000/api` 调用。
 
 ## 通用约定
 
 - Base URL：`http://localhost:5000/api`
 - 响应格式：`application/json`；出错返回 `{"error": "<消息>"}`，HTTP 状态码 4xx/5xx
-- 实体 ID：Neo4j `elementId(n)`（如 `4:abc123...`），**前端视为不透明字符串**，不得解析格式
+- 实体 ID：Neo4j `elementId(n)`（如 `4:abc123...`），**调用方视为不透明字符串**，不得解析格式
 
 ## 端点清单
 
@@ -148,14 +148,14 @@
 ### subgraph 约定
 
 - 仅 `vector_cypher` / `hybrid_cypher` 返回非空 subgraph；
-- 前端用 `subgraph.nodes` / `subgraph.edges` 的 `id` 与全图做**金色高亮**；
+- 可视化层用 `subgraph.nodes` / `subgraph.edges` 的 `id` 与全图做**金色高亮**；
 - 若图谱无可召回数据，subgraph 为 `{ "nodes": [], "edges": [] }`。
 
 ---
 
-## 前后端联调检查清单（D 完成后 E 对照）
+## 接口验收检查清单（D 完成后用 curl/Postman 对照）
 
-- [ ] 前端加载 `/api/graph` 正常渲染力导向图
-- [ ] 提问 `/api/graphrag` 后显示答案，且子图正确高亮
-- [ ] 搜索 `/api/search` 高亮命中实体
+- [ ] `GET /api/graph` 返回完整图谱 JSON（实体+关系，不含 Chunk/Document）
+- [ ] `POST /api/graphrag` 返回答案，且 `vector_cypher` / `hybrid_cypher` 带非空 subgraph
+- [ ] `GET /api/search?q=<词>` 返回命中实体列表
 - [ ] 异常场景（Neo4j 断开、空 question）有明确错误提示

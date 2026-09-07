@@ -10,7 +10,7 @@
 
 ## 1. 项目简介
 
-输入自然语言问题（如 "哪些药物通过抑制环氧合酶发挥作用？"），系统通过**向量检索 + 知识图谱遍历**召回相关证据（文本片段 + 实体关系三元组），交给 LLM 生成答案，并在前端可视化中高亮 "答案依据的子图"。
+输入自然语言问题（如 "哪些药物通过抑制环氧合酶发挥作用？"），系统通过**向量检索 + 知识图谱遍历**召回相关证据（文本片段 + 实体关系三元组），交给 LLM 生成答案，并在图谱可视化中高亮 "答案依据的子图"。
 
 
 
@@ -20,7 +20,7 @@
 
 * **后端**：Flask（端口 5000）+ flask-cors
 
-* **前端**：D3.js 力导向图 + 原生 HTML/CSS
+* **图谱可视化**：D3.js（`generate_visualization.ps1` 生成独立 HTML 图谱视图）
 
 * **环境**：Python 3.12（`.venv` 推荐 / conda `graphragexpr` 备选）+ Neo4j 5.x（Docker）
 
@@ -31,9 +31,7 @@
 ```
 graphRAG/
 
-├── backend/            # Flask API（7 个端点）
-
-├── frontend/           # D3.js 可视化 + 问答面板
+├── backend/            # Flask API（问答/健康检查）
 
 ├── graphragexpr/       # 核心实现
 
@@ -44,8 +42,6 @@ graphRAG/
 │   ├── external_embedder.py   # OpenAI 兼容 Embedding（哈希降级）
 
 │   └── custom_embedder.py     # 哈希 Embedder（离线 fallback）
-
-├── lib/                # 本地前端库（vis-network / tom-select）
 
 ├── tests/              # pytest（embedder/KG/检索/集成）
 
@@ -89,7 +85,7 @@ graphRAG/
 | B 数据 / 图谱 | 语料・抽取 Prompt・建图 | 图谱入库             |
 | C 检索 / 生成 | 4 检索器・LLM・评估    | 命令行问答跑通          |
 | D 后端      | Flask 端点・子图回查   | /api/graphrag 可用 |
-| E 前端      | D3 可视化・问答面板     | 图可视化可展示          |
+| E 可视化/汇报 | 图谱可视化・汇报 Demo     | 图谱可视化可展示        |
 
 详细分工见 `docs/PREP_CHECKLIST.md` 与团队计划。
 
@@ -126,7 +122,7 @@ powershell -ExecutionPolicy Bypass -File .\setup.ps1          # 4/4 全绿
 | **B 数据/图谱** | 定 20–40 篇医药语料来源并收集到 `data/raw/`（每篇一个 .txt）；装 pandas；准备 6 类本体类型表初稿；会 Neo4j Browser 查数（`MATCH (n) RETURN n LIMIT 25`） |
 | **C 检索/生成** | 拿 DeepSeek key 并各测 1 次 chat 调用；测 embedding（不可用则走哈希降级）；通读 `rag_graph.py` / `rag_vector.py` / `external_embedder.py`；备 10 个测试问题（单跳/多跳/跨实体） |
 | **D 后端 API** | 通读 `backend/api.py`；装 Postman/curl；Neo4j 起来后跑通 `GET /api/health`；精读 `API_CONTRACT.md` |
-| **E 前端可视化** | 通读 `frontend/index.html`；会用 Chrome DevTools；复习 D3 力导向图 API；确认 `lib/` 本地库存在 |
+| **E 可视化/汇报** | 通读 `graphragexpr/vis/visualize_standalone.py`；会用 `generate_visualization.ps1` 生成图谱 HTML；准备汇报 Demo 演示脚本 |
 
 ### 5.3 验收
 

@@ -52,13 +52,13 @@
 | D3 | 跑通骨架 | 环境就绪后执行 `./start_backend.ps1`，`GET /api/health` 有响应（Neo4j 起来后） |
 | D4 | 精读 API_CONTRACT | 逐条核对请求/响应字段 |
 
-### E · 前端可视化
+### E · 图谱可视化 / 汇报演示
 | # | 事项 | 说明 |
 |---|---|---|
-| E1 | 通读 frontend/index.html | 弄清 D3 力导向图、问答面板、搜索三个模块 |
-| E2 | 浏览器调试 | 会用 Chrome DevTools（Network / Console）；确认本机能访问 d3js CDN |
+| E1 | 通读可视化脚本 | 弄清 `graphragexpr/vis/visualize_standalone.py` 的实体/关系渲染逻辑 |
+| E2 | 跑通图谱可视化 | 执行 `./generate_visualization.ps1`，能生成并打开独立 HTML 图谱视图 |
 | E3 | D3.js 基础 | 复习力导向图（forceSimulation / forceLink / forceManyBody）API |
-| E4 | 本地库确认 | 确认 `lib/` 下 vis-network 等资源存在（已复制） |
+| E4 | 汇报 Demo 脚本 | 准备 3–5 步演示脚本：图谱总览 → 实体查询 → 问答调用 |
 
 ---
 
