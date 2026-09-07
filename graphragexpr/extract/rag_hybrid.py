@@ -8,8 +8,7 @@ from dotenv import load_dotenv
 from neo4j import GraphDatabase
 from neo4j_graphrag.llm import OpenAILLM
 from neo4j_graphrag.retrievers import HybridRetriever
-from neo4j_graphrag.embeddings import OpenAIEmbeddings
-from custom_embedder import CustomEmbedder
+from rag_common import build_embedder, build_context, make_text_formatter
 
 load_dotenv()
 
@@ -27,13 +26,7 @@ def hybrid_search():
         return
 
     print("正在初始化 Hybrid 检索器...")
-    embedder = CustomEmbedder(
-        external=OpenAIEmbeddings(
-            model="text-embedding-3-small",
-            base_url=os.getenv("LLM_ENDPOINT"),
-            api_key=os.getenv("LLM_TOKEN")
-        )
-    )
+    embedder = build_embedder()
 
     try:
         test_vec = embedder.embed_query("测试")
@@ -46,7 +39,8 @@ def hybrid_search():
         driver=driver,
         vector_index_name="text_embeddings",
         fulltext_index_name="text_fulltext",
-        embedder=embedder
+        embedder=embedder,
+        result_formatter=make_text_formatter("node")
     )
 
     llm = OpenAILLM(
@@ -78,8 +72,8 @@ def hybrid_search():
         print(f"\n🔍 正在执行 Hybrid 检索（向量+全文）...")
         try:
             # HybridRetriever 使用 query_text（文本），内部自动处理向量
-            result = retriever.search(query_text=query, top_k=5)
-            context = "\n".join([item.content for item in result.items])
+            result = retriever.search(query_text=query, top_k=8)
+            context = build_context(result.items)
             response = llm.invoke(
                 prompt_template.format(context=context, query=query)
             )

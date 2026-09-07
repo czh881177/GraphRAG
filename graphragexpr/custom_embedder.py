@@ -61,7 +61,9 @@ class CustomEmbedder:
         self._hash = SimpleHashEmbedder(dimension=dimension)
 
     def embed_query(self, text: str) -> List[float]:
-        """对单个文本进行 embedding"""
+        """对单个文本进行 embedding；external 为 None 时直接哈希（无噪音）"""
+        if self.external is None:
+            return self._hash.embed_query(text)
         try:
             # 尝试调用外部 API
             result = self.external.embed_query(text)
