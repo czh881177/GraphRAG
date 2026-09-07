@@ -7,13 +7,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from dotenv import load_dotenv
 from neo4j import GraphDatabase
 from neo4j_graphrag.llm import OpenAILLM
-from neo4j_graphrag.retrievers import VectorCypherRetriever
+from neo4j_graphrag.retrievers import HybridCypherRetriever
 from neo4j_graphrag.embeddings import OpenAIEmbeddings
 from custom_embedder import CustomEmbedder
 
 load_dotenv()
 
-def graph_rag_search():
+def hybrid_cypher_search():
     print("正在连接到 Neo4j 数据库...")
     driver = GraphDatabase.driver(
         os.getenv("NEO4J_URL", "bolt://localhost:7687"),
@@ -26,7 +26,7 @@ def graph_rag_search():
         print(f"❌ Neo4j 连接失败: {e}")
         return
 
-    print("正在初始化 GraphRAG 检索器（Vector + Cypher 图展开）...")
+    print("正在初始化 Hybrid+Cypher 检索器（Hybrid + 图展开）...")
     embedder = CustomEmbedder(
         external=OpenAIEmbeddings(
             model="text-embedding-3-small",
@@ -51,9 +51,10 @@ def graph_rag_search():
     LIMIT 20
     """
 
-    retriever = VectorCypherRetriever(
+    retriever = HybridCypherRetriever(
         driver=driver,
-        index_name="text_embeddings",
+        vector_index_name="text_embeddings",
+        fulltext_index_name="text_fulltext",
         embedder=embedder,
         retrieval_query=retrieval_query
     )
@@ -67,7 +68,7 @@ def graph_rag_search():
 
     prompt_template = """
 你是一个医药知识助手。请根据以下提供的上下文（文本片段 + 知识图谱三元组）回答问题。
-如果上下文中没有相关信息，请直接说"根据现有知识无法回答"，不要编造。
+优先使用知识图谱中的关系信息，文本片段作为补充。
 
 上下文：
 {context}
@@ -84,10 +85,9 @@ def graph_rag_search():
             print("⚠️ 输入不能为空，请重新输入")
             continue
 
-        print(f"\n🔍 正在检索：{query}")
+        print(f"\n🔍 正在执行 Hybrid+Cypher 检索（向量+全文+图遍历）...")
         try:
-            query_vector = embedder.embed_query(query)
-            result = retriever.search(query_vector=query_vector, top_k=5)
+            result = retriever.search(query_text=query, top_k=5)
 
             context_parts = []
             for item in result.items:
@@ -104,4 +104,4 @@ def graph_rag_search():
             print(f"❌ 检索失败: {e}")
 
 if __name__ == "__main__":
-    graph_rag_search()
+    hybrid_cypher_search()

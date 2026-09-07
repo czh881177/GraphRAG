@@ -7,13 +7,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from dotenv import load_dotenv
 from neo4j import GraphDatabase
 from neo4j_graphrag.llm import OpenAILLM
-from neo4j_graphrag.retrievers import VectorCypherRetriever
+from neo4j_graphrag.retrievers import HybridRetriever
 from neo4j_graphrag.embeddings import OpenAIEmbeddings
 from custom_embedder import CustomEmbedder
 
 load_dotenv()
 
-def graph_rag_search():
+def hybrid_search():
     print("正在连接到 Neo4j 数据库...")
     driver = GraphDatabase.driver(
         os.getenv("NEO4J_URL", "bolt://localhost:7687"),
@@ -26,7 +26,7 @@ def graph_rag_search():
         print(f"❌ Neo4j 连接失败: {e}")
         return
 
-    print("正在初始化 GraphRAG 检索器（Vector + Cypher 图展开）...")
+    print("正在初始化 Hybrid 检索器...")
     embedder = CustomEmbedder(
         external=OpenAIEmbeddings(
             model="text-embedding-3-small",
@@ -42,20 +42,11 @@ def graph_rag_search():
         print(f"❌ Embedding 测试失败: {e}")
         return
 
-    # 无参数版本，直接使用 node 变量
-    retrieval_query = """
-    MATCH (node)
-    OPTIONAL MATCH (node)-[r1]-(neighbor1)
-    OPTIONAL MATCH (neighbor1)-[r2]-(neighbor2) WHERE neighbor2 <> node
-    RETURN node, r1, neighbor1, r2, neighbor2
-    LIMIT 20
-    """
-
-    retriever = VectorCypherRetriever(
+    retriever = HybridRetriever(
         driver=driver,
-        index_name="text_embeddings",
-        embedder=embedder,
-        retrieval_query=retrieval_query
+        vector_index_name="text_embeddings",
+        fulltext_index_name="text_fulltext",
+        embedder=embedder
     )
 
     llm = OpenAILLM(
@@ -66,7 +57,7 @@ def graph_rag_search():
     )
 
     prompt_template = """
-你是一个医药知识助手。请根据以下提供的上下文（文本片段 + 知识图谱三元组）回答问题。
+你是一个医药知识助手。请仅根据以下提供的上下文（可能包含文本片段）回答问题。
 如果上下文中没有相关信息，请直接说"根据现有知识无法回答"，不要编造。
 
 上下文：
@@ -84,18 +75,11 @@ def graph_rag_search():
             print("⚠️ 输入不能为空，请重新输入")
             continue
 
-        print(f"\n🔍 正在检索：{query}")
+        print(f"\n🔍 正在执行 Hybrid 检索（向量+全文）...")
         try:
-            query_vector = embedder.embed_query(query)
-            result = retriever.search(query_vector=query_vector, top_k=5)
-
-            context_parts = []
-            for item in result.items:
-                context_parts.append(item.content)
-                if hasattr(item, 'metadata') and item.metadata:
-                    context_parts.append(str(item.metadata))
-            context = "\n".join(context_parts)
-
+            # HybridRetriever 使用 query_text（文本），内部自动处理向量
+            result = retriever.search(query_text=query, top_k=5)
+            context = "\n".join([item.content for item in result.items])
             response = llm.invoke(
                 prompt_template.format(context=context, query=query)
             )
@@ -104,4 +88,4 @@ def graph_rag_search():
             print(f"❌ 检索失败: {e}")
 
 if __name__ == "__main__":
-    graph_rag_search()
+    hybrid_search()
