@@ -49,7 +49,7 @@ def generate_standalone_visualization(output_path="graphragexpr/vis/output/graph
         result = session.run(query)
 
         if not result.peek():
-            print("⚠ 没有找到实体数据，请先运行 build_kg_simple.py")
+            print("⚠ 没有找到实体数据，请先运行 build_kg_dyn.ps1 建图")
             driver.close()
             return
 
