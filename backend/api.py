@@ -1,488 +1,1076 @@
-# backend/api.py
 """
-Flask backend API for serving knowledge graph data to visualization
+GraphRAG Flask Backend API
+
+D 任务：
+1. Neo4j health check
+2. Knowledge graph visualization API
+3. Entity APIs
+4. Statistics API
+5. Entity search API
+6. GraphRAG API
+7. GraphRAG subgraph extraction
+
+运行：
+    python -m backend.api
+
+默认：
+    http://localhost:5000
 """
+
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+from typing import Any
+
+from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import os
-from dotenv import load_dotenv
 from neo4j import GraphDatabase
 
-load_dotenv()
+
+# ============================================================
+# 1. Environment / Application
+# ============================================================
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+load_dotenv(PROJECT_ROOT / ".env")
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend
+CORS(app)
 
-# Neo4j connection
+
+# ============================================================
+# 2. Configuration
+# ============================================================
+
+NEO4J_URL = os.getenv("NEO4J_URL")
+NEO4J_USER = os.getenv("NEO4J_USER")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
+
+LLM_TOKEN = os.getenv("LLM_TOKEN")
+LLM_ENDPOINT = os.getenv(
+    "LLM_ENDPOINT",
+    "https://api.deepseek.com"
+)
+LLM_MODEL = os.getenv(
+    "LLM_MODEL",
+    "deepseek-chat"
+)
+
+VECTOR_INDEX_NAME = os.getenv(
+    "VECTOR_INDEX_NAME",
+    "text_embeddings"
+)
+
+FULLTEXT_INDEX_NAME = os.getenv(
+    "FULLTEXT_INDEX_NAME",
+    "text_fulltext"
+)
+
+TOP_K = int(os.getenv("RAG_TOP_K", "3"))
+
+ALLOWED_ENTITY_TYPES = {
+    "药物",
+    "疾病",
+    "症状",
+    "公司",
+    "作用机制",
+    "副作用",
+    "概念",
+}
+
+ALLOWED_RAG_METHODS = {
+    "vector",
+    "vector_cypher",
+    "hybrid",
+    "hybrid_cypher",
+}
+
+
+# ============================================================
+# 3. Neo4j Driver
+# ============================================================
+
+if not NEO4J_URL:
+    print(
+        "WARNING: NEO4J_URL is not configured. "
+        "Set it in .env before starting the backend."
+    )
+
 driver = GraphDatabase.driver(
-    os.getenv("NEO4J_URL"),
-    auth=(os.getenv("NEO4J_USER"), os.getenv("NEO4J_PASSWORD")),
+    NEO4J_URL or "bolt://localhost:7687",
+    auth=(
+        NEO4J_USER or "neo4j",
+        NEO4J_PASSWORD or "",
+    ),
 )
 
 
-@app.route('/api/health', methods=['GET'])
+# ============================================================
+# 4. Helper Functions
+# ============================================================
+
+def error_response(message: str, status_code: int):
+    """Return a consistent JSON error response."""
+    return jsonify({"error": message}), status_code
+
+
+def node_to_dict(node: Any) -> dict:
+    """Convert Neo4j Node into JSON-compatible dict."""
+    return {
+        "id": node.element_id,
+        "label": node.get("name", "unknown"),
+        "type": (
+            list(node.labels)[0]
+            if node.labels
+            else "unknown"
+        ),
+    }
+
+
+def build_subgraph_from_chunks(
+    chunk_ids: list[str],
+) -> dict[str, list]:
+    """
+    Build a 1-2 hop entity subgraph around retrieved chunks.
+
+    Important:
+    Do NOT use:
+        [rel*0..2]
+
+    and then treat rel as a single Relationship.
+
+    Instead, use path + relationships(path).
+    """
+
+    if not chunk_ids:
+        return {
+            "nodes": [],
+            "edges": [],
+        }
+
+    query = """
+    UNWIND $chunk_ids AS chunk_id
+
+    MATCH (chunk)
+    WHERE elementId(chunk) = chunk_id
+
+    MATCH path =
+        (chunk)<-[:FROM_CHUNK]-(entity)
+        -[*0..2]-(neighbor)
+
+    WHERE NOT neighbor:Chunk
+      AND NOT neighbor:Document
+
+    RETURN path
+    """
+
+    nodes: dict[str, dict] = {}
+    edges: dict[tuple[str, str, str], dict] = {}
+
+    with driver.session() as session:
+        result = session.run(
+            query,
+            chunk_ids=chunk_ids,
+        )
+
+        for record in result:
+            path = record["path"]
+
+            # Add nodes from the path
+            for node in path.nodes:
+
+                if "Chunk" in node.labels:
+                    continue
+
+                if "Document" in node.labels:
+                    continue
+
+                node_id = node.element_id
+
+                if node_id not in nodes:
+                    nodes[node_id] = node_to_dict(node)
+
+            # Add relationships from the path
+            for rel in path.relationships:
+
+                source_id = rel.start_node.element_id
+                target_id = rel.end_node.element_id
+
+                source_node = rel.start_node
+                target_node = rel.end_node
+
+                if (
+                    "Chunk" in source_node.labels
+                    or "Document" in source_node.labels
+                    or "Chunk" in target_node.labels
+                    or "Document" in target_node.labels
+                ):
+                    continue
+
+                key = (
+                    source_id,
+                    target_id,
+                    rel.type,
+                )
+
+                if key not in edges:
+                    edges[key] = {
+                        "source": source_id,
+                        "target": target_id,
+                        "type": rel.type,
+                    }
+
+    return {
+        "nodes": list(nodes.values()),
+        "edges": list(edges.values()),
+    }
+
+
+def get_vector_chunk_ids(
+    question: str,
+    embedder: Any,
+    top_k: int,
+) -> list[str]:
+    """
+    Find the top-k vector chunks.
+
+    This is used only for frontend subgraph highlighting.
+    """
+
+    query_embedding = embedder.embed_query(question)
+
+    query = """
+    CALL db.index.vector.queryNodes(
+        $index_name,
+        $top_k,
+        $query_embedding
+    )
+    YIELD node, score
+
+    RETURN elementId(node) AS chunk_id
+    ORDER BY score DESC
+    """
+
+    with driver.session() as session:
+
+        result = session.run(
+            query,
+            index_name=VECTOR_INDEX_NAME,
+            top_k=top_k,
+            query_embedding=query_embedding,
+        )
+
+        return [
+            record["chunk_id"]
+            for record in result
+        ]
+
+
+def get_graph_retrieval_query() -> str:
+    """
+    Retrieval query used by VectorCypherRetriever /
+    HybridCypherRetriever.
+
+    The query returns textual context plus graph data.
+    """
+
+    return """
+    WITH node AS chunk
+
+    MATCH path =
+        (chunk)<-[:FROM_CHUNK]-(entity)
+        -[*0..2]-(neighbor)
+
+    WHERE NOT neighbor:Chunk
+      AND NOT neighbor:Document
+
+    WITH chunk, entity, neighbor, path
+
+    RETURN
+        chunk.text AS info,
+        collect(
+            DISTINCT {
+                source_id: elementId(entity),
+                source_name: coalesce(entity.name, ''),
+                source_type:
+                    CASE
+                        WHEN size(labels(entity)) > 0
+                        THEN labels(entity)[0]
+                        ELSE 'unknown'
+                    END,
+
+                target_id: elementId(neighbor),
+                target_name: coalesce(neighbor.name, ''),
+                target_type:
+                    CASE
+                        WHEN size(labels(neighbor)) > 0
+                        THEN labels(neighbor)[0]
+                        ELSE 'unknown'
+                    END,
+
+                relationships:
+                    [
+                        r IN relationships(path)
+                        | type(r)
+                    ]
+            }
+        ) AS graph_data
+    """
+
+
+# ============================================================
+# 5. Health API
+# ============================================================
+
+@app.route("/api/health", methods=["GET"])
 def health_check():
-    """Health check endpoint"""
+    """Check backend and Neo4j connectivity."""
+
     try:
         driver.verify_connectivity()
-        return jsonify({"status": "ok", "message": "Connected to Neo4j"}), 200
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+
+        return jsonify({
+            "status": "ok",
+            "message": "Connected to Neo4j",
+        }), 200
+
+    except Exception as exc:
+        return error_response(
+            str(exc),
+            500,
+        )
 
 
-@app.route('/api/graph', methods=['GET'])
+# ============================================================
+# 6. Complete Graph API
+# ============================================================
+
+@app.route("/api/graph", methods=["GET"])
 def get_graph():
-    """Get the complete knowledge graph (entities only, no chunks)"""
+    """
+    Get the complete knowledge graph.
+
+    Chunk and Document nodes are excluded.
+    """
+
     query = """
     MATCH (n)-[r]->(m)
-    WHERE NOT n:Chunk AND NOT n:Document
-      AND NOT m:Chunk AND NOT m:Document
-    RETURN elementId(n) AS source_id, labels(n)[0] AS source_label,
-           coalesce(n.name, 'unknown') AS source_name,
-           type(r) AS rel_type,
-           elementId(m) AS target_id, labels(m)[0] AS target_label,
-           coalesce(m.name, 'unknown') AS target_name
+
+    WHERE NOT n:Chunk
+      AND NOT n:Document
+      AND NOT m:Chunk
+      AND NOT m:Document
+
+    RETURN
+        elementId(n) AS source_id,
+        labels(n)[0] AS source_type,
+        coalesce(n.name, 'unknown') AS source_name,
+
+        type(r) AS rel_type,
+
+        elementId(m) AS target_id,
+        labels(m)[0] AS target_type,
+        coalesce(m.name, 'unknown') AS target_name
     """
 
     try:
+
         with driver.session() as session:
+
             result = session.run(query)
 
-            nodes = {}
-            edges = []
+            nodes: dict[str, dict] = {}
+            edges: list[dict] = []
 
             for record in result:
-                # Add source node
+
                 source_id = record["source_id"]
+
                 if source_id not in nodes:
                     nodes[source_id] = {
                         "id": source_id,
                         "label": record["source_name"],
-                        "type": record["source_label"]
+                        "type": record["source_type"],
                     }
 
-                # Add target node
                 target_id = record["target_id"]
+
                 if target_id not in nodes:
                     nodes[target_id] = {
                         "id": target_id,
                         "label": record["target_name"],
-                        "type": record["target_label"]
+                        "type": record["target_type"],
                     }
 
-                # Add edge
                 edges.append({
                     "source": source_id,
                     "target": target_id,
-                    "type": record["rel_type"]
+                    "type": record["rel_type"],
                 })
 
             return jsonify({
                 "nodes": list(nodes.values()),
-                "edges": edges
+                "edges": edges,
             }), 200
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception as exc:
+
+        return error_response(
+            str(exc),
+            500,
+        )
 
 
-@app.route('/api/entities', methods=['GET'])
+# ============================================================
+# 7. Entity List API
+# ============================================================
+
+@app.route("/api/entities", methods=["GET"])
 def get_entities():
-    """Get all entities with their types"""
-    entity_type = request.args.get('type', None)
+    """Get entities, optionally filtered by type."""
 
-    # 白名单校验：Cypher 标签不可参数化，必须校验，防止注入
-    ALLOWED_TYPES = {"药物", "疾病", "症状", "公司", "作用机制", "副作用", "概念"}
-    if entity_type and entity_type not in ALLOWED_TYPES:
-        return jsonify({"error": "Invalid type: " + entity_type}), 400
+    entity_type = request.args.get("type")
 
-    if entity_type:
-        query = f"""
-        MATCH (n:`{entity_type}`)
-        WHERE NOT n:Chunk AND NOT n:Document
-        RETURN elementId(n) as id, labels(n)[0] as type,
-               coalesce(n.name, 'unknown') as name
-        """
-    else:
-        query = """
-        MATCH (n)
-        WHERE NOT n:Chunk AND NOT n:Document
-        RETURN elementId(n) as id, labels(n)[0] as type,
-               coalesce(n.name, 'unknown') as name
-        """
+    if (
+        entity_type
+        and entity_type not in ALLOWED_ENTITY_TYPES
+    ):
+        return error_response(
+            f"Invalid type: {entity_type}",
+            400,
+        )
 
     try:
+
         with driver.session() as session:
-            result = session.run(query)
-            entities = [dict(record) for record in result]
-            return jsonify({"entities": entities}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+
+            if entity_type:
+
+                query = """
+                MATCH (n)
+
+                WHERE $entity_type IN labels(n)
+                  AND NOT n:Chunk
+                  AND NOT n:Document
+
+                RETURN
+                    elementId(n) AS id,
+                    labels(n)[0] AS type,
+                    coalesce(n.name, 'unknown') AS name
+
+                ORDER BY name
+                """
+
+                result = session.run(
+                    query,
+                    entity_type=entity_type,
+                )
+
+            else:
+
+                query = """
+                MATCH (n)
+
+                WHERE NOT n:Chunk
+                  AND NOT n:Document
+
+                RETURN
+                    elementId(n) AS id,
+                    labels(n)[0] AS type,
+                    coalesce(n.name, 'unknown') AS name
+
+                ORDER BY name
+                """
+
+                result = session.run(query)
+
+            entities = [
+                dict(record)
+                for record in result
+            ]
+
+            return jsonify({
+                "entities": entities,
+            }), 200
+
+    except Exception as exc:
+
+        return error_response(
+            str(exc),
+            500,
+        )
 
 
-@app.route('/api/entity/<entity_id>', methods=['GET'])
-def get_entity_details(entity_id):
-    """Get detailed information about a specific entity"""
+# ============================================================
+# 8. Entity Detail API
+# ============================================================
+
+@app.route(
+    "/api/entity/<path:entity_id>",
+    methods=["GET"],
+)
+def get_entity_details(entity_id: str):
+    """Get detailed information about one entity."""
+
     query = """
     MATCH (n)
+
     WHERE elementId(n) = $entity_id
+
     OPTIONAL MATCH (n)-[r]-(related)
-    WHERE NOT related:Chunk AND NOT related:Document
-    RETURN n,
-           labels(n)[0] as type,
-           collect(DISTINCT {
-               node: related.name,
-               relationship: type(r),
-               direction: CASE
-                   WHEN startNode(r) = n THEN 'outgoing'
-                   ELSE 'incoming'
-               END
-           }) as connections
+
+    WHERE NOT related:Chunk
+      AND NOT related:Document
+
+    RETURN
+        n,
+        labels(n)[0] AS type,
+
+        collect(
+            DISTINCT {
+                node_id:
+                    CASE
+                        WHEN related IS NULL
+                        THEN NULL
+                        ELSE elementId(related)
+                    END,
+
+                node:
+                    CASE
+                        WHEN related IS NULL
+                        THEN NULL
+                        ELSE coalesce(
+                            related.name,
+                            'unknown'
+                        )
+                    END,
+
+                relationship:
+                    CASE
+                        WHEN r IS NULL
+                        THEN NULL
+                        ELSE type(r)
+                    END,
+
+                direction:
+                    CASE
+                        WHEN r IS NULL
+                        THEN NULL
+                        WHEN startNode(r) = n
+                        THEN 'outgoing'
+                        ELSE 'incoming'
+                    END
+            }
+        ) AS connections
     """
 
     try:
+
         with driver.session() as session:
-            result = session.run(query, entity_id=entity_id)
-            record = result.single()
+
+            record = session.run(
+                query,
+                entity_id=entity_id,
+            ).single()
 
             if not record:
-                return jsonify({"error": "Entity not found"}), 404
+                return error_response(
+                    "Entity not found",
+                    404,
+                )
 
             node = record["n"]
+
+            connections = [
+                connection
+                for connection in record["connections"]
+                if connection["node_id"] is not None
+            ]
+
             return jsonify({
                 "id": entity_id,
                 "type": record["type"],
                 "properties": dict(node),
-                "connections": record["connections"]
+                "connections": connections,
             }), 200
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception as exc:
+
+        return error_response(
+            str(exc),
+            500,
+        )
 
 
-@app.route('/api/stats', methods=['GET'])
+# ============================================================
+# 9. Statistics API
+# ============================================================
+
+@app.route("/api/stats", methods=["GET"])
 def get_stats():
-    """Get statistics about the knowledge graph"""
+    """Get knowledge graph statistics."""
+
     try:
+
         with driver.session() as session:
-            # Count nodes by type
+
             node_counts = session.run("""
                 MATCH (n)
-                WHERE NOT n:Chunk AND NOT n:Document
-                RETURN labels(n)[0] as type, count(n) as count
+
+                WHERE NOT n:Chunk
+                  AND NOT n:Document
+
+                RETURN
+                    labels(n)[0] AS type,
+                    count(n) AS count
             """)
 
-            nodes_by_type = {record["type"]: record["count"] for record in node_counts}
+            nodes_by_type = {
+                record["type"]: record["count"]
+                for record in node_counts
+            }
 
-            # Count relationships by type
             rel_counts = session.run("""
-                MATCH ()-[r]->()
-                RETURN type(r) as type, count(r) as count
+                MATCH (a)-[r]->(b)
+
+                WHERE NOT a:Chunk
+                  AND NOT a:Document
+                  AND NOT b:Chunk
+                  AND NOT b:Document
+
+                RETURN
+                    type(r) AS type,
+                    count(r) AS count
             """)
 
-            rels_by_type = {record["type"]: record["count"] for record in rel_counts}
+            relationships_by_type = {
+                record["type"]: record["count"]
+                for record in rel_counts
+            }
 
-            # Total counts
             total_nodes = session.run("""
                 MATCH (n)
-                WHERE NOT n:Chunk AND NOT n:Document
-                RETURN count(n) as count
+
+                WHERE NOT n:Chunk
+                  AND NOT n:Document
+
+                RETURN count(n) AS count
             """).single()["count"]
 
-            total_rels = session.run("""
-                MATCH ()-[r]->()
-                RETURN count(r) as count
+            total_relationships = session.run("""
+                MATCH (a)-[r]->(b)
+
+                WHERE NOT a:Chunk
+                  AND NOT a:Document
+                  AND NOT b:Chunk
+                  AND NOT b:Document
+
+                RETURN count(r) AS count
             """).single()["count"]
 
             return jsonify({
                 "total_nodes": total_nodes,
-                "total_relationships": total_rels,
+                "total_relationships": total_relationships,
                 "nodes_by_type": nodes_by_type,
-                "relationships_by_type": rels_by_type
+                "relationships_by_type": relationships_by_type,
             }), 200
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception as exc:
+
+        return error_response(
+            str(exc),
+            500,
+        )
 
 
-@app.route('/api/search', methods=['GET'])
+# ============================================================
+# 10. Search API
+# ============================================================
+
+@app.route("/api/search", methods=["GET"])
 def search_entities():
-    """Search entities by name"""
-    query_text = request.args.get('q', '')
+    """Search entities by name."""
+
+    query_text = request.args.get(
+        "q",
+        "",
+    ).strip()
 
     if not query_text:
-        return jsonify({"error": "Query parameter 'q' is required"}), 400
+
+        return error_response(
+            "Query parameter 'q' is required",
+            400,
+        )
 
     query = """
     MATCH (n)
-    WHERE NOT n:Chunk AND NOT n:Document
-      AND toLower(coalesce(n.name, '')) CONTAINS toLower($query)
-    RETURN elementId(n) as id, labels(n)[0] as type, n.name as name
+
+    WHERE NOT n:Chunk
+      AND NOT n:Document
+      AND toLower(
+            coalesce(n.name, '')
+          ) CONTAINS toLower($query)
+
+    RETURN
+        elementId(n) AS id,
+        labels(n)[0] AS type,
+        coalesce(n.name, 'unknown') AS name
+
+    ORDER BY name
+
     LIMIT 20
     """
 
     try:
+
         with driver.session() as session:
-            result = session.run(query, query=query_text)
-            entities = [dict(record) for record in result]
-            return jsonify({"results": entities}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+
+            result = session.run(
+                query,
+                query=query_text,
+            )
+
+            entities = [
+                dict(record)
+                for record in result
+            ]
+
+            return jsonify({
+                "results": entities,
+            }), 200
+
+    except Exception as exc:
+
+        return error_response(
+            str(exc),
+            500,
+        )
 
 
-@app.route('/api/graphrag', methods=['POST'])
+# ============================================================
+# 11. GraphRAG API
+# ============================================================
+
+@app.route("/api/graphrag", methods=["POST"])
 def graphrag_query():
-    """Perform GraphRAG query and return answer with subgraph used"""
-    data = request.get_json()
-    question = data.get('question', '')
-    method = data.get('method', 'vector_cypher')  # vector, hybrid, vector_cypher, hybrid_cypher（默认与契约/前端一致）
+    """
+    Perform GraphRAG query.
+
+    Supported methods:
+        vector
+        vector_cypher
+        hybrid
+        hybrid_cypher
+    """
+
+    data = request.get_json(
+        silent=True
+    ) or {}
+
+    question = str(
+        data.get("question", "")
+    ).strip()
+
+    method = data.get(
+        "method",
+        "vector_cypher",
+    )
+
+    # --------------------------------------------------------
+    # Validate request
+    # --------------------------------------------------------
 
     if not question:
-        return jsonify({"error": "Question is required"}), 400
+
+        return error_response(
+            "Question is required",
+            400,
+        )
+
+    if method not in ALLOWED_RAG_METHODS:
+
+        return error_response(
+            f"Unknown method: {method}",
+            400,
+        )
+
+    if not LLM_TOKEN:
+
+        return error_response(
+            "LLM_TOKEN is not configured",
+            500,
+        )
 
     try:
-        import sys
-        from pathlib import Path
-        sys.path.insert(0, str(Path(__file__).parent.parent / "graphragexpr"))
+
+        # ----------------------------------------------------
+        # Import C's GraphRAG components
+        # ----------------------------------------------------
+
+        graphrag_dir = (
+            PROJECT_ROOT / "graphragexpr"
+        )
+
+        if str(graphrag_dir) not in sys.path:
+            sys.path.insert(
+                0,
+                str(graphrag_dir),
+            )
 
         from external_embedder import ExternalEmbedder
-        from neo4j_graphrag.llm import OpenAILLM
+
+        from neo4j_graphrag.llm import (
+            OpenAILLM,
+        )
+
         from neo4j_graphrag.retrievers import (
             VectorRetriever,
             VectorCypherRetriever,
             HybridRetriever,
-            HybridCypherRetriever
+            HybridCypherRetriever,
         )
-        from neo4j_graphrag.generation import GraphRAG, RagTemplate
 
-        # Initialize components
-        embedder = ExternalEmbedder(dimension=1536)
+        from neo4j_graphrag.generation import (
+            GraphRAG,
+            RagTemplate,
+        )
 
-        api_key = os.getenv("LLM_TOKEN")
-        base_url = os.getenv("LLM_ENDPOINT", "https://api.deepseek.com")
+        # ----------------------------------------------------
+        # Embedder
+        # ----------------------------------------------------
+
+        embedder = ExternalEmbedder(
+            dimension=1536,
+        )
+
+        # ----------------------------------------------------
+        # LLM
+        # ----------------------------------------------------
 
         llm = OpenAILLM(
-            model_name=os.getenv("LLM_MODEL", "deepseek-chat"),
-            api_key=api_key,
-            base_url=base_url,
-            model_params={"temperature": 0}
+            model_name=LLM_MODEL,
+            api_key=LLM_TOKEN,
+            base_url=LLM_ENDPOINT,
+            model_params={
+                "temperature": 0,
+            },
         )
 
-        # Select retriever based on method
-        if method == 'vector':
-            # Pure vector search
+        # ----------------------------------------------------
+        # Retriever
+        # ----------------------------------------------------
+
+        if method == "vector":
+
             retriever = VectorRetriever(
                 driver=driver,
-                index_name="text_embeddings",
+                index_name=VECTOR_INDEX_NAME,
                 embedder=embedder,
-                return_properties=["text"]
+                return_properties=["text"],
             )
-        elif method == 'vector_cypher':
-            # Vector search + graph traversal
-            retrieval_query = """
-            WITH node AS chunk
-            MATCH (chunk)<-[:FROM_CHUNK]-(entity)-[rel*0..2]-(neighbor)
-            WHERE NOT neighbor:Chunk AND NOT neighbor:Document
-            WITH DISTINCT chunk, entity, neighbor, rel
-            WITH chunk,
-                 collect(DISTINCT chunk.text) AS texts,
-                 collect(DISTINCT {
-                   source_id: elementId(entity),
-                   source_name: coalesce(entity.name, ''),
-                   source_type: labels(entity)[0],
-                   target_id: elementId(neighbor),
-                   target_name: coalesce(neighbor.name, ''),
-                   target_type: labels(neighbor)[0],
-                   relationships: [r IN rel | type(r)]
-                 }) as graph_data
-            WITH reduce(s = '', text IN texts |
-                    s + CASE WHEN s = '' THEN text ELSE '\n---\n' + text END
-                 ) AS context_text,
-                 graph_data
-            RETURN context_text as info, graph_data
-            """
+
+        elif method == "vector_cypher":
+
             retriever = VectorCypherRetriever(
                 driver=driver,
-                index_name="text_embeddings",
+                index_name=VECTOR_INDEX_NAME,
                 embedder=embedder,
-                retrieval_query=retrieval_query
+                retrieval_query=
+                    get_graph_retrieval_query(),
             )
-        elif method == 'hybrid':
-            # Hybrid: vector + fulltext (requires fulltext index)
+
+        elif method == "hybrid":
+
             retriever = HybridRetriever(
                 driver=driver,
-                vector_index_name="text_embeddings",
-                fulltext_index_name="text_fulltext",  # Need to create this
+                vector_index_name=VECTOR_INDEX_NAME,
+                fulltext_index_name=FULLTEXT_INDEX_NAME,
                 embedder=embedder,
-                return_properties=["text"]
+                return_properties=["text"],
             )
-        elif method == 'hybrid_cypher':
-            # Hybrid + graph traversal
-            retrieval_query = """
-            WITH node AS chunk
-            MATCH (chunk)<-[:FROM_CHUNK]-(entity)-[rel*0..2]-(neighbor)
-            WHERE NOT neighbor:Chunk AND NOT neighbor:Document
-            WITH DISTINCT chunk, entity, neighbor, rel
-            WITH chunk,
-                 collect(DISTINCT chunk.text) AS texts,
-                 collect(DISTINCT {
-                   source_id: elementId(entity),
-                   source_name: coalesce(entity.name, ''),
-                   source_type: labels(entity)[0],
-                   target_id: elementId(neighbor),
-                   target_name: coalesce(neighbor.name, ''),
-                   target_type: labels(neighbor)[0],
-                   relationships: [r IN rel | type(r)]
-                 }) as graph_data
-            WITH reduce(s = '', text IN texts |
-                    s + CASE WHEN s = '' THEN text ELSE '\n---\n' + text END
-                 ) AS context_text,
-                 graph_data
-            RETURN context_text as info, graph_data
-            """
+
+        elif method == "hybrid_cypher":
+
             retriever = HybridCypherRetriever(
                 driver=driver,
-                vector_index_name="text_embeddings",
-                fulltext_index_name="text_fulltext",
+                vector_index_name=VECTOR_INDEX_NAME,
+                fulltext_index_name=FULLTEXT_INDEX_NAME,
                 embedder=embedder,
-                retrieval_query=retrieval_query
+                retrieval_query=
+                    get_graph_retrieval_query(),
             )
+
         else:
-            return jsonify({"error": f"Unknown method: {method}"}), 400
+            # Should never happen because of validation.
+            return error_response(
+                f"Unknown method: {method}",
+                400,
+            )
 
-        # Create RAG template
+        # ----------------------------------------------------
+        # RAG Prompt
+        # ----------------------------------------------------
+
         rag_template = RagTemplate(
-            template="""你是一个专业的问答助手。请仅根据以下上下文回答问题，
-上下文包括相关文本片段和知识图谱三元组。如果上下文不足以回答，请如实说明。
+            template="""
+你是一个专业的医药知识问答助手。
 
-# 问题：
+请仅根据提供的上下文回答用户问题。
+
+上下文可能包含：
+1. 医药文本片段
+2. 知识图谱关系
+3. 实体之间的关联信息
+
+如果上下文不足以回答问题，请明确说明信息不足，
+不要自行编造医学事实。
+
+# 用户问题
+
 {query_text}
 
-# 上下文：
+# 上下文
+
 {context}
 
-# 回答：
+# 回答
 """,
-            expected_inputs=["query_text", "context"],
+            expected_inputs=[
+                "query_text",
+                "context",
+            ],
         )
 
-        # Create GraphRAG instance
-        graph_rag = GraphRAG(retriever=retriever, llm=llm, prompt_template=rag_template)
+        # ----------------------------------------------------
+        # GraphRAG
+        # ----------------------------------------------------
 
-        # Perform search
+        graph_rag = GraphRAG(
+            retriever=retriever,
+            llm=llm,
+            prompt_template=rag_template,
+        )
+
         response = graph_rag.search(
             query_text=question,
-            retriever_config={"top_k": 3},
+            retriever_config={
+                "top_k": TOP_K,
+            },
         )
 
-        # Extract subgraph for *Cypher methods by querying Neo4j directly
-        subgraph = {"nodes": [], "edges": []}
+        # ----------------------------------------------------
+        # Extract answer
+        # ----------------------------------------------------
 
-        if method in ['vector_cypher', 'hybrid_cypher']:
-            try:
-                # Get query embedding to find which chunks were retrieved
-                query_embedding = embedder.embed_query(question)
+        answer = getattr(
+            response,
+            "answer",
+            None,
+        )
 
-                # Find relevant chunks that were used in retrieval
-                chunk_query = """
-                CALL db.index.vector.queryNodes('text_embeddings', $top_k, $query_embedding)
-                YIELD node, score
-                RETURN elementId(node) as chunk_id
-                """
+        if answer is None:
 
-                with driver.session() as session:
-                    result = session.run(chunk_query, query_embedding=query_embedding, top_k=3)
-                    chunk_ids = [record['chunk_id'] for record in result]
+            # Compatibility with different neo4j-graphrag
+            # response structures.
+            answer = str(response)
 
-                    if chunk_ids:
-                        # Get subgraph around those chunks (same as retrieval_query pattern)
-                        subgraph_query = """
-                        UNWIND $chunk_ids AS chunk_id
-                        MATCH (chunk) WHERE elementId(chunk) = chunk_id
-                        MATCH (chunk)<-[:FROM_CHUNK]-(entity)-[rel*0..2]-(neighbor)
-                        WHERE NOT neighbor:Chunk AND NOT neighbor:Document
-                        WITH DISTINCT entity, neighbor, rel
-                        UNWIND CASE WHEN rel = [] THEN [null] ELSE rel END AS r
-                        WITH DISTINCT
-                            CASE WHEN r IS NULL THEN entity ELSE startNode(r) END as source,
-                            CASE WHEN r IS NULL THEN null ELSE endNode(r) END as target,
-                            CASE WHEN r IS NULL THEN null ELSE type(r) END as rel_type
-                        WHERE source IS NOT NULL
-                        RETURN DISTINCT
-                            elementId(source) as source_id,
-                            labels(source)[0] as source_label,
-                            coalesce(source.name, 'unknown') as source_name,
-                            CASE WHEN target IS NOT NULL THEN elementId(target) END as target_id,
-                            CASE WHEN target IS NOT NULL THEN labels(target)[0] END as target_label,
-                            CASE WHEN target IS NOT NULL THEN coalesce(target.name, 'unknown') END as target_name,
-                            rel_type
-                        """
+        # ----------------------------------------------------
+        # Subgraph
+        # ----------------------------------------------------
 
-                        result = session.run(subgraph_query, chunk_ids=chunk_ids)
+        subgraph = {
+            "nodes": [],
+            "edges": [],
+        }
 
-                        nodes_map = {}
-                        edges = []
+        if method in {
+            "vector_cypher",
+            "hybrid_cypher",
+        }:
 
-                        for record in result:
-                            source_id = record['source_id']
-                            if source_id and source_id not in nodes_map:
-                                nodes_map[source_id] = {
-                                    'id': source_id,
-                                    'label': record['source_name'],
-                                    'type': record['source_label']
-                                }
+            chunk_ids = get_vector_chunk_ids(
+                question,
+                embedder,
+                TOP_K,
+            )
 
-                            target_id = record['target_id']
-                            if target_id:
-                                if target_id not in nodes_map:
-                                    nodes_map[target_id] = {
-                                        'id': target_id,
-                                        'label': record['target_name'],
-                                        'type': record['target_label']
-                                    }
+            subgraph = build_subgraph_from_chunks(
+                chunk_ids,
+            )
 
-                                if record['rel_type']:
-                                    edges.append({
-                                        'source': source_id,
-                                        'target': target_id,
-                                        'type': record['rel_type']
-                                    })
-
-                        subgraph['nodes'] = list(nodes_map.values())
-                        subgraph['edges'] = edges
-            except Exception as e:
-                print(f"Error extracting subgraph for cypher method: {e}")
-                import traceback
-                traceback.print_exc()
+        # ----------------------------------------------------
+        # API response
+        # ----------------------------------------------------
 
         return jsonify({
-            "answer": response.answer,
+            "answer": answer,
             "method": method,
-            "subgraph": subgraph
+            "subgraph": subgraph,
         }), 200
 
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+    except ImportError as exc:
 
+        return error_response(
+            f"GraphRAG dependency/import error: {exc}",
+            500,
+        )
+
+    except Exception as exc:
+
+        return error_response(
+            str(exc),
+            500,
+        )
+
+
+# ============================================================
+# 12. Shutdown
+# ============================================================
 
 @app.teardown_appcontext
-def close_db(error):
-    """Close database connection on app teardown"""
+def close_driver(exception=None):
+    """
+    Do not close the global Neo4j driver here.
+
+    Flask creates/destroys application contexts frequently,
+    while the driver is intended to be reused.
+    """
     pass
 
 
-if __name__ == '__main__':
-    print("Starting GraphRAG Backend API...")
-    print(f"Neo4j URI: {os.getenv('NEO4J_URL')}")
-    print("API will be available at http://localhost:5000")
-    print("\nAvailable endpoints:")
-    print("  GET  /api/health          - Health check")
-    print("  GET  /api/graph           - Get complete knowledge graph")
-    print("  GET  /api/entities        - Get all entities")
-    print("  GET  /api/entity/<id>     - Get entity details")
-    print("  GET  /api/stats           - Get graph statistics")
-    print("  GET  /api/search?q=...    - Search entities")
+# ============================================================
+# 13. Main
+# ============================================================
 
-    app.run(debug=True, host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+
+    print("=" * 60)
+    print("GraphRAG Backend API")
+    print("=" * 60)
+
+    print(
+        "Neo4j:",
+        NEO4J_URL or "NOT CONFIGURED",
+    )
+
+    print(
+        "LLM:",
+        LLM_MODEL,
+    )
+
+    print(
+        "Server: http://localhost:5000",
+    )
+
+    print("=" * 60)
+
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True,
+    )
