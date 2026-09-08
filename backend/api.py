@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import os
 import sys
+import traceback
 from pathlib import Path
 from typing import Any
 
@@ -115,6 +116,12 @@ driver = GraphDatabase.driver(
 
 def error_response(message: str, status_code: int):
     """Return a consistent JSON error response."""
+    if status_code >= 500:
+        print("\n========== API ERROR ==========")
+        print(message)
+        traceback.print_exc()
+        print("================================\n")
+
     return jsonify({"error": message}), status_code
 
 
@@ -137,13 +144,8 @@ def build_subgraph_from_chunks(
     """
     Build a 1-2 hop entity subgraph around retrieved chunks.
 
-    Important:
-    Do NOT use:
-        [rel*0..2]
-
-    and then treat rel as a single Relationship.
-
-    Instead, use path + relationships(path).
+    Use path + relationships(path) for variable-length paths.
+    Chunk and Document nodes/relationships are excluded from the result.
     """
 
     if not chunk_ids:
@@ -165,7 +167,29 @@ def build_subgraph_from_chunks(
     WHERE NOT neighbor:Chunk
       AND NOT neighbor:Document
 
-    RETURN path
+    WITH path, relationships(path) AS rels
+    UNWIND rels AS rel
+
+    WITH
+        rel,
+        startNode(rel) AS source,
+        endNode(rel) AS target
+
+    WHERE NOT source:Chunk
+      AND NOT source:Document
+      AND NOT target:Chunk
+      AND NOT target:Document
+
+    RETURN
+        elementId(source) AS source_id,
+        labels(source)[0] AS source_label,
+        coalesce(source.name, 'unknown') AS source_name,
+
+        elementId(target) AS target_id,
+        labels(target)[0] AS target_label,
+        coalesce(target.name, 'unknown') AS target_name,
+
+        type(rel) AS rel_type
     """
 
     nodes: dict[str, dict] = {}
@@ -178,58 +202,47 @@ def build_subgraph_from_chunks(
         )
 
         for record in result:
-            path = record["path"]
+            source_id = record["source_id"]
+            source_name = record["source_name"]
+            source_label = record["source_label"]
 
-            # Add nodes from the path
-            for node in path.nodes:
+            target_id = record["target_id"]
+            target_name = record["target_name"]
+            target_label = record["target_label"]
 
-                if "Chunk" in node.labels:
-                    continue
+            rel_type = record["rel_type"]
 
-                if "Document" in node.labels:
-                    continue
+            if source_id not in nodes:
+                nodes[source_id] = {
+                    "id": source_id,
+                    "label": source_name,
+                    "type": source_label,
+                }
 
-                node_id = node.element_id
+            if target_id not in nodes:
+                nodes[target_id] = {
+                    "id": target_id,
+                    "label": target_name,
+                    "type": target_label,
+                }
 
-                if node_id not in nodes:
-                    nodes[node_id] = node_to_dict(node)
+            edge_key = (
+                source_id,
+                target_id,
+                rel_type,
+            )
 
-            # Add relationships from the path
-            for rel in path.relationships:
-
-                source_id = rel.start_node.element_id
-                target_id = rel.end_node.element_id
-
-                source_node = rel.start_node
-                target_node = rel.end_node
-
-                if (
-                    "Chunk" in source_node.labels
-                    or "Document" in source_node.labels
-                    or "Chunk" in target_node.labels
-                    or "Document" in target_node.labels
-                ):
-                    continue
-
-                key = (
-                    source_id,
-                    target_id,
-                    rel.type,
-                )
-
-                if key not in edges:
-                    edges[key] = {
-                        "source": source_id,
-                        "target": target_id,
-                        "type": rel.type,
-                    }
+            if edge_key not in edges:
+                edges[edge_key] = {
+                    "source": source_id,
+                    "target": target_id,
+                    "type": rel_type,
+                }
 
     return {
         "nodes": list(nodes.values()),
         "edges": list(edges.values()),
     }
-
-
 def get_vector_chunk_ids(
     question: str,
     embedder: Any,
@@ -339,10 +352,11 @@ def health_check():
         }), 200
 
     except Exception as exc:
-        return error_response(
-            str(exc),
-            500,
-        )
+
+        return jsonify({
+        "status": "error",
+        "message": str(exc),
+        }), 500
 
 
 # ============================================================
@@ -366,15 +380,15 @@ def get_graph():
       AND NOT m:Document
 
     RETURN
-        elementId(n) AS source_id,
-        labels(n)[0] AS source_type,
-        coalesce(n.name, 'unknown') AS source_name,
+    elementId(n) AS source_id,
+    coalesce(n.name, 'unknown') AS source_name,
+    labels(n)[0] AS source_type,
 
-        type(r) AS rel_type,
+    type(r) AS rel_type,
 
-        elementId(m) AS target_id,
-        labels(m)[0] AS target_type,
-        coalesce(m.name, 'unknown') AS target_name
+    elementId(m) AS target_id,
+    coalesce(m.name, 'unknown') AS target_name,
+    labels(m)[0] AS target_type
     """
 
     try:
@@ -394,8 +408,8 @@ def get_graph():
                     nodes[source_id] = {
                         "id": source_id,
                         "label": record["source_name"],
-                        "type": record["source_type"],
-                    }
+                        "type": record.get("source_type", "unknown"),
+                }
 
                 target_id = record["target_id"]
 
@@ -403,13 +417,13 @@ def get_graph():
                     nodes[target_id] = {
                         "id": target_id,
                         "label": record["target_name"],
-                        "type": record["target_type"],
+                        "type": record.get("target_type", "unknown"),
                     }
 
                 edges.append({
-                    "source": source_id,
-                    "target": target_id,
-                    "type": record["rel_type"],
+                        "source": source_id,
+                        "target": target_id,
+                        "type": record["rel_type"],
                 })
 
             return jsonify({
@@ -450,20 +464,18 @@ def get_entities():
 
             if entity_type:
 
-                query = """
-                MATCH (n)
-
-                WHERE $entity_type IN labels(n)
-                  AND NOT n:Chunk
-                  AND NOT n:Document
+                query = f"""
+                MATCH (n:`{entity_type}`)
+                WHERE NOT n:Chunk
+                AND NOT n:Document
 
                 RETURN
-                    elementId(n) AS id,
-                    labels(n)[0] AS type,
-                    coalesce(n.name, 'unknown') AS name
+             elementId(n) AS id,
+            labels(n)[0] AS type,
+                (n.name, 'unknown') AS name
 
-                ORDER BY name
-                """
+ORDER BY name
+"""
 
                 result = session.run(
                     query,
@@ -517,56 +529,57 @@ def get_entity_details(entity_id: str):
     """Get detailed information about one entity."""
 
     query = """
-    MATCH (n)
+MATCH (n)
 
-    WHERE elementId(n) = $entity_id
+WHERE elementId(n) = $entity_id
+  AND NOT n:Chunk AND NOT n:Document
 
-    OPTIONAL MATCH (n)-[r]-(related)
+OPTIONAL MATCH (n)-[r]-(related)
 
-    WHERE NOT related:Chunk
-      AND NOT related:Document
+WHERE NOT related:Chunk
+  AND NOT related:Document
 
-    RETURN
-        n,
-        labels(n)[0] AS type,
+RETURN
+    n,
+    labels(n)[0] AS type,
 
-        collect(
-            DISTINCT {
-                node_id:
-                    CASE
-                        WHEN related IS NULL
-                        THEN NULL
-                        ELSE elementId(related)
-                    END,
+    collect(
+        DISTINCT {
+            node_id:
+                CASE
+                    WHEN related IS NULL
+                    THEN NULL
+                    ELSE elementId(related)
+                END,
 
-                node:
-                    CASE
-                        WHEN related IS NULL
-                        THEN NULL
-                        ELSE coalesce(
-                            related.name,
-                            'unknown'
-                        )
-                    END,
+            node:
+                CASE
+                    WHEN related IS NULL
+                    THEN NULL
+                    ELSE coalesce(
+                        related.name,
+                        'unknown'
+                    )
+                END,
 
-                relationship:
-                    CASE
-                        WHEN r IS NULL
-                        THEN NULL
-                        ELSE type(r)
-                    END,
+            relationship:
+                CASE
+                    WHEN r IS NULL
+                    THEN NULL
+                    ELSE type(r)
+                END,
 
-                direction:
-                    CASE
-                        WHEN r IS NULL
-                        THEN NULL
-                        WHEN startNode(r) = n
-                        THEN 'outgoing'
-                        ELSE 'incoming'
-                    END
-            }
-        ) AS connections
-    """
+            direction:
+                CASE
+                    WHEN r IS NULL
+                    THEN NULL
+                    WHEN startNode(r) = n
+                    THEN 'outgoing'
+                    ELSE 'incoming'
+                END
+        }
+    ) AS connections
+"""
 
     try:
 
@@ -588,7 +601,7 @@ def get_entity_details(entity_id: str):
             connections = [
                 connection
                 for connection in record["connections"]
-                if connection["node_id"] is not None
+                if connection.get("node") is not None
             ]
 
             return jsonify({
@@ -625,8 +638,7 @@ def get_stats():
                   AND NOT n:Document
 
                 RETURN
-                    labels(n)[0] AS type,
-                    count(n) AS count
+                    labels(n)[0] as type, count(n) as count
             """)
 
             nodes_by_type = {
@@ -635,17 +647,13 @@ def get_stats():
             }
 
             rel_counts = session.run("""
-                MATCH (a)-[r]->(b)
-
-                WHERE NOT a:Chunk
-                  AND NOT a:Document
-                  AND NOT b:Chunk
-                  AND NOT b:Document
-
-                RETURN
-                    type(r) AS type,
-                    count(r) AS count
-            """)
+    MATCH (a)-[r]->(b)
+    WHERE NOT startNode(r):Chunk
+      AND NOT startNode(r):Document
+      AND NOT endNode(r):Chunk
+      AND NOT endNode(r):Document
+    RETURN type(r) as type, count(r) as count
+""")
 
             relationships_by_type = {
                 record["type"]: record["count"]
@@ -658,19 +666,17 @@ def get_stats():
                 WHERE NOT n:Chunk
                   AND NOT n:Document
 
-                RETURN count(n) AS count
+                RETURN count(n) as count
             """).single()["count"]
 
             total_relationships = session.run("""
-                MATCH (a)-[r]->(b)
-
-                WHERE NOT a:Chunk
-                  AND NOT a:Document
-                  AND NOT b:Chunk
-                  AND NOT b:Document
-
-                RETURN count(r) AS count
-            """).single()["count"]
+    MATCH (a)-[r]->(b)
+    WHERE NOT startNode(r):Chunk
+      AND NOT startNode(r):Document
+      AND NOT endNode(r):Chunk
+      AND NOT endNode(r):Document
+    RETURN count(r) as count
+""").single()["count"]
 
             return jsonify({
                 "total_nodes": total_nodes,
@@ -732,7 +738,7 @@ def search_entities():
 
             result = session.run(
                 query,
-                query=query_text,
+                parameters={"query": query_text},
             )
 
             entities = [
@@ -755,7 +761,6 @@ def search_entities():
 # ============================================================
 # 11. GraphRAG API
 # ============================================================
-
 @app.route("/api/graphrag", methods=["POST"])
 def graphrag_query():
     """
@@ -768,9 +773,25 @@ def graphrag_query():
         hybrid_cypher
     """
 
-    data = request.get_json(
-        silent=True
-    ) or {}
+    if not request.is_json:
+        return error_response(
+            "JSON object is required",
+            400,
+        )
+
+    try:
+        data = request.get_json()
+    except Exception:
+        return error_response(
+            "JSON object is required",
+            400,
+        )
+
+    if not isinstance(data, dict):
+        return error_response(
+            "JSON object is required",
+            400,
+        )
 
     question = str(
         data.get("question", "")
@@ -780,6 +801,10 @@ def graphrag_query():
         "method",
         "vector_cypher",
     )
+
+    # --------------------------------------------------------
+    # Validate request
+    # --------------------------------------------------------
 
     # --------------------------------------------------------
     # Validate request
