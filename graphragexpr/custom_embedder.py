@@ -84,3 +84,21 @@ class CustomEmbedder:
         else:
             # 填充 0
             return vec + [0.0] * (self.dimension - len(vec))
+
+
+def build_embedder(dimension: int = 1536):
+    """工厂：EMBED_ENDPOINT/EMBED_MODEL/EMBED_TOKEN 三项都配置 → 用外部 embedding；
+    否则直接用 SimpleHashEmbedder（避免指向错误端点的 404 噪音）。"""
+    import os
+    endpoint = os.getenv("EMBED_ENDPOINT")
+    model = os.getenv("EMBED_MODEL")
+    token = os.getenv("EMBED_TOKEN")
+    if endpoint and model and token:
+        from neo4j_graphrag.embeddings import OpenAIEmbeddings
+        print(f"✓ 使用外部 Embedding: {model}")
+        return CustomEmbedder(
+            external=OpenAIEmbeddings(model=model, base_url=endpoint, api_key=token),
+            dimension=dimension,
+        )
+    print("⚠ 未配置 EMBED_*，使用本地哈希 Embedder（1536 维）")
+    return SimpleHashEmbedder(dimension=dimension)

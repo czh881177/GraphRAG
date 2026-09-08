@@ -8,8 +8,7 @@ from dotenv import load_dotenv
 from neo4j import GraphDatabase
 from neo4j_graphrag.llm import OpenAILLM
 from neo4j_graphrag.retrievers import HybridRetriever
-from neo4j_graphrag.embeddings import OpenAIEmbeddings
-from custom_embedder import CustomEmbedder
+from custom_embedder import build_embedder
 
 load_dotenv()
 
@@ -27,13 +26,7 @@ def hybrid_search():
         return
 
     print("正在初始化 Hybrid 检索器...")
-    embedder = CustomEmbedder(
-        external=OpenAIEmbeddings(
-            model="text-embedding-3-small",
-            base_url=os.getenv("LLM_ENDPOINT"),
-            api_key=os.getenv("LLM_TOKEN")
-        )
-    )
+    embedder = build_embedder()
 
     try:
         test_vec = embedder.embed_query("测试")

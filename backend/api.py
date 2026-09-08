@@ -19,8 +19,7 @@ from neo4j_graphrag.retrievers import (
     HybridRetriever,
     HybridCypherRetriever
 )
-from neo4j_graphrag.embeddings import OpenAIEmbeddings
-from graphragexpr.custom_embedder import CustomEmbedder
+from graphragexpr.custom_embedder import build_embedder
 
 app = Flask(__name__)
 CORS(app)
@@ -32,13 +31,7 @@ PASSWORD = "12345678"
 driver = GraphDatabase.driver(URI, auth=(USER, PASSWORD))
 
 # 初始化 Embedder 和 LLM
-embedder = CustomEmbedder(
-    external=OpenAIEmbeddings(
-        model="text-embedding-3-small",
-        base_url=os.getenv("LLM_ENDPOINT"),
-        api_key=os.getenv("LLM_TOKEN")
-    )
-)
+embedder = build_embedder()
 
 llm = OpenAILLM(
     model_name=os.getenv("LLM_MODEL", "deepseek-chat"),
