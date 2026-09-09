@@ -1,0 +1,5680 @@
+[
+  {
+    "chunk_index": 0,
+    "source": "allergic_rhinitis.txt",
+    "entities": [
+      {
+        "name": "过敏性鼻炎",
+        "type": "疾病"
+      },
+      {
+        "name": "过敏原",
+        "type": "概念"
+      },
+      {
+        "name": "花粉",
+        "type": "概念"
+      },
+      {
+        "name": "尘螨",
+        "type": "概念"
+      },
+      {
+        "name": "动物皮屑",
+        "type": "概念"
+      },
+      {
+        "name": "霉菌",
+        "type": "概念"
+      },
+      {
+        "name": "免疫球蛋白E",
+        "type": "作用机制"
+      },
+      {
+        "name": "组胺H1受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "氯雷他定",
+        "type": "药物"
+      },
+      {
+        "name": "西替利嗪",
+        "type": "药物"
+      },
+      {
+        "name": "布地奈德",
+        "type": "药物"
+      },
+      {
+        "name": "打喷嚏",
+        "type": "症状"
+      },
+      {
+        "name": "流鼻涕",
+        "type": "症状"
+      },
+      {
+        "name": "鼻痒",
+        "type": "症状"
+      },
+      {
+        "name": "鼻塞",
+        "type": "症状"
+      },
+      {
+        "name": "荨麻疹",
+        "type": "疾病"
+      },
+      {
+        "name": "皮肤瘙痒",
+        "type": "症状"
+      },
+      {
+        "name": "风团",
+        "type": "症状"
+      },
+      {
+        "name": "哮喘",
+        "type": "疾病"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "氯雷他定",
+        "target": "组胺H1受体",
+        "type": "作用于"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "组胺H1受体",
+        "type": "作用于"
+      },
+      {
+        "source": "布地奈德",
+        "target": "过敏性鼻炎",
+        "type": "治疗"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "过敏性鼻炎",
+        "type": "治疗"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "过敏性鼻炎",
+        "type": "治疗"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "打喷嚏",
+        "type": "缓解"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "流鼻涕",
+        "type": "缓解"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "鼻痒",
+        "type": "缓解"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "鼻痒",
+        "type": "缓解"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "流鼻涕",
+        "type": "缓解"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "打喷嚏",
+        "type": "缓解"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "荨麻疹",
+        "type": "治疗"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "皮肤瘙痒",
+        "type": "缓解"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "风团",
+        "type": "缓解"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "荨麻疹",
+        "type": "治疗"
+      },
+      {
+        "source": "过敏原",
+        "target": "免疫球蛋白E",
+        "type": "作用于"
+      },
+      {
+        "source": "花粉",
+        "target": "过敏性鼻炎",
+        "type": "作用于"
+      },
+      {
+        "source": "尘螨",
+        "target": "过敏性鼻炎",
+        "type": "作用于"
+      },
+      {
+        "source": "过敏性鼻炎",
+        "target": "哮喘",
+        "type": "属于"
+      }
+    ]
+  },
+  {
+    "chunk_index": 1,
+    "source": "amlodipine.txt",
+    "entities": [
+      {
+        "name": "氨氯地平",
+        "type": "药物"
+      },
+      {
+        "name": "二氢吡啶类",
+        "type": "概念"
+      },
+      {
+        "name": "钙通道阻滞剂",
+        "type": "概念"
+      },
+      {
+        "name": "L型钙通道",
+        "type": "作用机制"
+      },
+      {
+        "name": "钙离子",
+        "type": "概念"
+      },
+      {
+        "name": "高血压",
+        "type": "疾病"
+      },
+      {
+        "name": "慢性稳定性心绞痛",
+        "type": "疾病"
+      },
+      {
+        "name": "血管痉挛性心绞痛",
+        "type": "疾病"
+      },
+      {
+        "name": "胸闷",
+        "type": "症状"
+      },
+      {
+        "name": "胸痛",
+        "type": "症状"
+      },
+      {
+        "name": "踝部水肿",
+        "type": "副作用"
+      },
+      {
+        "name": "头痛",
+        "type": "症状"
+      },
+      {
+        "name": "面部潮红",
+        "type": "副作用"
+      },
+      {
+        "name": "心悸",
+        "type": "症状"
+      },
+      {
+        "name": "眩晕",
+        "type": "症状"
+      },
+      {
+        "name": "硝苯地平",
+        "type": "药物"
+      },
+      {
+        "name": "外周小动脉",
+        "type": "概念"
+      },
+      {
+        "name": "辉瑞公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "氨氯地平",
+        "target": "L型钙通道",
+        "type": "作用于"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "高血压",
+        "type": "治疗"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "慢性稳定性心绞痛",
+        "type": "治疗"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "血管痉挛性心绞痛",
+        "type": "治疗"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "胸闷",
+        "type": "缓解"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "胸痛",
+        "type": "缓解"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "踝部水肿",
+        "type": "副作用"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "头痛",
+        "type": "副作用"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "面部潮红",
+        "type": "副作用"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "心悸",
+        "type": "副作用"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "眩晕",
+        "type": "副作用"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "钙通道阻滞剂",
+        "type": "属于"
+      },
+      {
+        "source": "辉瑞公司",
+        "target": "氨氯地平",
+        "type": "研发"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "外周小动脉",
+        "type": "作用于"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "高血压",
+        "type": "治疗"
+      }
+    ]
+  },
+  {
+    "chunk_index": 2,
+    "source": "amoxicillin.txt",
+    "entities": [
+      {
+        "name": "阿莫西林",
+        "type": "药物"
+      },
+      {
+        "name": "青霉素类",
+        "type": "概念"
+      },
+      {
+        "name": "β-内酰胺类",
+        "type": "概念"
+      },
+      {
+        "name": "广谱抗生素",
+        "type": "概念"
+      },
+      {
+        "name": "青霉素结合蛋白",
+        "type": "作用机制"
+      },
+      {
+        "name": "肽聚糖",
+        "type": "概念"
+      },
+      {
+        "name": "克拉维酸",
+        "type": "药物"
+      },
+      {
+        "name": "β-内酰胺酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "呼吸道感染",
+        "type": "疾病"
+      },
+      {
+        "name": "中耳炎",
+        "type": "疾病"
+      },
+      {
+        "name": "鼻窦炎",
+        "type": "疾病"
+      },
+      {
+        "name": "尿路感染",
+        "type": "疾病"
+      },
+      {
+        "name": "皮肤软组织感染",
+        "type": "疾病"
+      },
+      {
+        "name": "幽门螺杆菌",
+        "type": "概念"
+      },
+      {
+        "name": "皮疹",
+        "type": "副作用"
+      },
+      {
+        "name": "腹泻",
+        "type": "副作用"
+      },
+      {
+        "name": "恶心",
+        "type": "副作用"
+      },
+      {
+        "name": "过敏反应",
+        "type": "副作用"
+      },
+      {
+        "name": "过敏性休克",
+        "type": "副作用"
+      },
+      {
+        "name": "伪膜性肠炎",
+        "type": "副作用"
+      },
+      {
+        "name": "葛兰素史克公司",
+        "type": "公司"
+      },
+      {
+        "name": "阿莫西林克拉维酸钾",
+        "type": "药物"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "阿莫西林",
+        "target": "青霉素结合蛋白",
+        "type": "作用于"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "呼吸道感染",
+        "type": "治疗"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "中耳炎",
+        "type": "治疗"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "鼻窦炎",
+        "type": "治疗"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "尿路感染",
+        "type": "治疗"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "皮肤软组织感染",
+        "type": "治疗"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "幽门螺杆菌",
+        "type": "治疗"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "皮疹",
+        "type": "副作用"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "腹泻",
+        "type": "副作用"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "恶心",
+        "type": "副作用"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "过敏反应",
+        "type": "副作用"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "过敏性休克",
+        "type": "副作用"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "伪膜性肠炎",
+        "type": "副作用"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "青霉素类",
+        "type": "属于"
+      },
+      {
+        "source": "葛兰素史克公司",
+        "target": "阿莫西林",
+        "type": "研发"
+      },
+      {
+        "source": "克拉维酸",
+        "target": "β-内酰胺酶",
+        "type": "作用于"
+      },
+      {
+        "source": "阿莫西林克拉维酸钾",
+        "target": "阿莫西林",
+        "type": "属于"
+      },
+      {
+        "source": "阿莫西林克拉维酸钾",
+        "target": "呼吸道感染",
+        "type": "治疗"
+      }
+    ]
+  },
+  {
+    "chunk_index": 3,
+    "source": "aspirin.txt",
+    "entities": [
+      {
+        "name": "阿司匹林",
+        "type": "药物"
+      },
+      {
+        "name": "非甾体抗炎药",
+        "type": "概念"
+      },
+      {
+        "name": "水杨酸类",
+        "type": "概念"
+      },
+      {
+        "name": "环氧合酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "环氧合酶1",
+        "type": "作用机制"
+      },
+      {
+        "name": "环氧合酶2",
+        "type": "作用机制"
+      },
+      {
+        "name": "前列腺素",
+        "type": "概念"
+      },
+      {
+        "name": "血栓素A2",
+        "type": "概念"
+      },
+      {
+        "name": "花生四烯酸",
+        "type": "概念"
+      },
+      {
+        "name": "血小板聚集",
+        "type": "概念"
+      },
+      {
+        "name": "头痛",
+        "type": "症状"
+      },
+      {
+        "name": "牙痛",
+        "type": "症状"
+      },
+      {
+        "name": "肌肉疼痛",
+        "type": "症状"
+      },
+      {
+        "name": "关节疼痛",
+        "type": "症状"
+      },
+      {
+        "name": "发热",
+        "type": "症状"
+      },
+      {
+        "name": "类风湿关节炎",
+        "type": "疾病"
+      },
+      {
+        "name": "骨关节炎",
+        "type": "疾病"
+      },
+      {
+        "name": "关节肿胀",
+        "type": "症状"
+      },
+      {
+        "name": "心肌梗死",
+        "type": "疾病"
+      },
+      {
+        "name": "缺血性脑卒中",
+        "type": "疾病"
+      },
+      {
+        "name": "冠心病",
+        "type": "疾病"
+      },
+      {
+        "name": "胃肠道出血",
+        "type": "副作用"
+      },
+      {
+        "name": "恶心",
+        "type": "副作用"
+      },
+      {
+        "name": "胃痛",
+        "type": "副作用"
+      },
+      {
+        "name": "消化不良",
+        "type": "副作用"
+      },
+      {
+        "name": "耳鸣",
+        "type": "副作用"
+      },
+      {
+        "name": "过敏反应",
+        "type": "副作用"
+      },
+      {
+        "name": "支气管痉挛",
+        "type": "症状"
+      },
+      {
+        "name": "拜耳公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "阿司匹林",
+        "target": "环氧合酶",
+        "type": "作用于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "环氧合酶1",
+        "type": "作用于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "环氧合酶2",
+        "type": "作用于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "前列腺素",
+        "type": "作用于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "血栓素A2",
+        "type": "作用于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "血小板聚集",
+        "type": "作用于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "头痛",
+        "type": "治疗"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "发热",
+        "type": "缓解"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "牙痛",
+        "type": "缓解"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "肌肉疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "关节疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "类风湿关节炎",
+        "type": "治疗"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "骨关节炎",
+        "type": "治疗"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "关节肿胀",
+        "type": "缓解"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "心肌梗死",
+        "type": "治疗"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "缺血性脑卒中",
+        "type": "治疗"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "冠心病",
+        "type": "治疗"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "胃肠道出血",
+        "type": "副作用"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "恶心",
+        "type": "副作用"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "胃痛",
+        "type": "副作用"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "消化不良",
+        "type": "副作用"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "耳鸣",
+        "type": "副作用"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "过敏反应",
+        "type": "副作用"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "支气管痉挛",
+        "type": "副作用"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "非甾体抗炎药",
+        "type": "属于"
+      },
+      {
+        "source": "拜耳公司",
+        "target": "阿司匹林",
+        "type": "研发"
+      },
+      {
+        "source": "环氧合酶",
+        "target": "前列腺素",
+        "type": "作用于"
+      },
+      {
+        "source": "花生四烯酸",
+        "target": "前列腺素",
+        "type": "作用于"
+      }
+    ]
+  },
+  {
+    "chunk_index": 4,
+    "source": "asthma_overview.txt",
+    "entities": [
+      {
+        "name": "哮喘",
+        "type": "疾病"
+      },
+      {
+        "name": "气道慢性炎症",
+        "type": "概念"
+      },
+      {
+        "name": "气道高反应性",
+        "type": "概念"
+      },
+      {
+        "name": "气道平滑肌",
+        "type": "概念"
+      },
+      {
+        "name": "支气管狭窄",
+        "type": "症状"
+      },
+      {
+        "name": "喘息",
+        "type": "症状"
+      },
+      {
+        "name": "气促",
+        "type": "症状"
+      },
+      {
+        "name": "胸闷",
+        "type": "症状"
+      },
+      {
+        "name": "咳嗽",
+        "type": "症状"
+      },
+      {
+        "name": "沙丁胺醇",
+        "type": "药物"
+      },
+      {
+        "name": "布地奈德",
+        "type": "药物"
+      },
+      {
+        "name": "β2受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "吸入性糖皮质激素",
+        "type": "概念"
+      },
+      {
+        "name": "过敏性鼻炎",
+        "type": "疾病"
+      },
+      {
+        "name": "冷空气",
+        "type": "概念"
+      },
+      {
+        "name": "运动",
+        "type": "概念"
+      },
+      {
+        "name": "尘螨",
+        "type": "概念"
+      },
+      {
+        "name": "烟雾",
+        "type": "概念"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "沙丁胺醇",
+        "target": "β2受体",
+        "type": "作用于"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "哮喘",
+        "type": "治疗"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "喘息",
+        "type": "缓解"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "气促",
+        "type": "缓解"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "支气管狭窄",
+        "type": "缓解"
+      },
+      {
+        "source": "布地奈德",
+        "target": "哮喘",
+        "type": "治疗"
+      },
+      {
+        "source": "布地奈德",
+        "target": "哮喘",
+        "type": "作用于"
+      },
+      {
+        "source": "布地奈德",
+        "target": "气道慢性炎症",
+        "type": "作用于"
+      },
+      {
+        "source": "布地奈德",
+        "target": "吸入性糖皮质激素",
+        "type": "属于"
+      },
+      {
+        "source": "过敏性鼻炎",
+        "target": "哮喘",
+        "type": "属于"
+      },
+      {
+        "source": "冷空气",
+        "target": "哮喘",
+        "type": "作用于"
+      },
+      {
+        "source": "运动",
+        "target": "哮喘",
+        "type": "作用于"
+      },
+      {
+        "source": "尘螨",
+        "target": "哮喘",
+        "type": "作用于"
+      },
+      {
+        "source": "烟雾",
+        "target": "哮喘",
+        "type": "作用于"
+      },
+      {
+        "source": "哮喘",
+        "target": "咳嗽",
+        "type": "属于"
+      },
+      {
+        "source": "哮喘",
+        "target": "胸闷",
+        "type": "属于"
+      }
+    ]
+  },
+  {
+    "chunk_index": 5,
+    "source": "atorvastatin.txt",
+    "entities": [
+      {
+        "name": "阿托伐他汀",
+        "type": "药物"
+      },
+      {
+        "name": "他汀类",
+        "type": "概念"
+      },
+      {
+        "name": "羟甲基戊二酰辅酶A还原酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "低密度脂蛋白胆固醇",
+        "type": "概念"
+      },
+      {
+        "name": "低密度脂蛋白受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "高胆固醇血症",
+        "type": "疾病"
+      },
+      {
+        "name": "混合型高脂血症",
+        "type": "疾病"
+      },
+      {
+        "name": "家族性高胆固醇血症",
+        "type": "疾病"
+      },
+      {
+        "name": "高脂血症",
+        "type": "疾病"
+      },
+      {
+        "name": "动脉粥样硬化",
+        "type": "疾病"
+      },
+      {
+        "name": "心肌梗死",
+        "type": "疾病"
+      },
+      {
+        "name": "脑卒中",
+        "type": "疾病"
+      },
+      {
+        "name": "肌肉疼痛",
+        "type": "副作用"
+      },
+      {
+        "name": "肝酶升高",
+        "type": "副作用"
+      },
+      {
+        "name": "头痛",
+        "type": "副作用"
+      },
+      {
+        "name": "消化不良",
+        "type": "副作用"
+      },
+      {
+        "name": "横纹肌溶解",
+        "type": "副作用"
+      },
+      {
+        "name": "瑞舒伐他汀",
+        "type": "药物"
+      },
+      {
+        "name": "辉瑞公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "阿托伐他汀",
+        "target": "羟甲基戊二酰辅酶A还原酶",
+        "type": "作用于"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "高胆固醇血症",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "混合型高脂血症",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "家族性高胆固醇血症",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "高脂血症",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "动脉粥样硬化",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "心肌梗死",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "脑卒中",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "肌肉疼痛",
+        "type": "副作用"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "肝酶升高",
+        "type": "副作用"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "头痛",
+        "type": "副作用"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "消化不良",
+        "type": "副作用"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "横纹肌溶解",
+        "type": "副作用"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "低密度脂蛋白胆固醇",
+        "type": "作用于"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "他汀类",
+        "type": "属于"
+      },
+      {
+        "source": "辉瑞公司",
+        "target": "阿托伐他汀",
+        "type": "研发"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "高脂血症",
+        "type": "治疗"
+      }
+    ]
+  },
+  {
+    "chunk_index": 6,
+    "source": "budesonide.txt",
+    "entities": [
+      {
+        "name": "布地奈德",
+        "type": "药物"
+      },
+      {
+        "name": "吸入性糖皮质激素",
+        "type": "概念"
+      },
+      {
+        "name": "糖皮质激素受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "气道炎症",
+        "type": "概念"
+      },
+      {
+        "name": "哮喘",
+        "type": "疾病"
+      },
+      {
+        "name": "慢性阻塞性肺疾病",
+        "type": "疾病"
+      },
+      {
+        "name": "过敏性鼻炎",
+        "type": "疾病"
+      },
+      {
+        "name": "口腔念珠菌感染",
+        "type": "副作用"
+      },
+      {
+        "name": "声音嘶哑",
+        "type": "副作用"
+      },
+      {
+        "name": "咽部刺激",
+        "type": "副作用"
+      },
+      {
+        "name": "阿斯利康公司",
+        "type": "公司"
+      },
+      {
+        "name": "沙丁胺醇",
+        "type": "药物"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "布地奈德",
+        "target": "糖皮质激素受体",
+        "type": "作用于"
+      },
+      {
+        "source": "布地奈德",
+        "target": "哮喘",
+        "type": "治疗"
+      },
+      {
+        "source": "布地奈德",
+        "target": "慢性阻塞性肺疾病",
+        "type": "治疗"
+      },
+      {
+        "source": "布地奈德",
+        "target": "过敏性鼻炎",
+        "type": "治疗"
+      },
+      {
+        "source": "布地奈德",
+        "target": "气道炎症",
+        "type": "作用于"
+      },
+      {
+        "source": "布地奈德",
+        "target": "口腔念珠菌感染",
+        "type": "副作用"
+      },
+      {
+        "source": "布地奈德",
+        "target": "声音嘶哑",
+        "type": "副作用"
+      },
+      {
+        "source": "布地奈德",
+        "target": "咽部刺激",
+        "type": "副作用"
+      },
+      {
+        "source": "布地奈德",
+        "target": "吸入性糖皮质激素",
+        "type": "属于"
+      },
+      {
+        "source": "阿斯利康公司",
+        "target": "布地奈德",
+        "type": "研发"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "哮喘",
+        "type": "治疗"
+      }
+    ]
+  },
+  {
+    "chunk_index": 7,
+    "source": "cardiovascular_overview.txt",
+    "entities": [
+      {
+        "name": "动脉粥样硬化性心血管疾病",
+        "type": "疾病"
+      },
+      {
+        "name": "心肌梗死",
+        "type": "疾病"
+      },
+      {
+        "name": "脑卒中",
+        "type": "疾病"
+      },
+      {
+        "name": "冠状动脉粥样硬化性心脏病",
+        "type": "疾病"
+      },
+      {
+        "name": "高血压",
+        "type": "疾病"
+      },
+      {
+        "name": "高脂血症",
+        "type": "疾病"
+      },
+      {
+        "name": "糖尿病",
+        "type": "疾病"
+      },
+      {
+        "name": "吸烟",
+        "type": "概念"
+      },
+      {
+        "name": "肥胖",
+        "type": "概念"
+      },
+      {
+        "name": "阿司匹林",
+        "type": "药物"
+      },
+      {
+        "name": "氯吡格雷",
+        "type": "药物"
+      },
+      {
+        "name": "阿托伐他汀",
+        "type": "药物"
+      },
+      {
+        "name": "氨氯地平",
+        "type": "药物"
+      },
+      {
+        "name": "氯沙坦",
+        "type": "药物"
+      },
+      {
+        "name": "二甲双胍",
+        "type": "药物"
+      },
+      {
+        "name": "血小板聚集",
+        "type": "概念"
+      },
+      {
+        "name": "低密度脂蛋白胆固醇",
+        "type": "概念"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "阿司匹林",
+        "target": "血小板聚集",
+        "type": "作用于"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "血小板聚集",
+        "type": "作用于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "心肌梗死",
+        "type": "治疗"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "脑卒中",
+        "type": "治疗"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "心肌梗死",
+        "type": "治疗"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "脑卒中",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "低密度脂蛋白胆固醇",
+        "type": "作用于"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "动脉粥样硬化性心血管疾病",
+        "type": "治疗"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "高血压",
+        "type": "治疗"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "高血压",
+        "type": "治疗"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "糖尿病",
+        "type": "治疗"
+      },
+      {
+        "source": "高血压",
+        "target": "心肌梗死",
+        "type": "属于"
+      },
+      {
+        "source": "高脂血症",
+        "target": "心肌梗死",
+        "type": "属于"
+      },
+      {
+        "source": "糖尿病",
+        "target": "心肌梗死",
+        "type": "属于"
+      },
+      {
+        "source": "吸烟",
+        "target": "心肌梗死",
+        "type": "属于"
+      },
+      {
+        "source": "肥胖",
+        "target": "心肌梗死",
+        "type": "属于"
+      },
+      {
+        "source": "高脂血症",
+        "target": "动脉粥样硬化",
+        "type": "作用于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "胃溃疡",
+        "type": "副作用"
+      },
+      {
+        "source": "布洛芬",
+        "target": "胃溃疡",
+        "type": "副作用"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "冠心病",
+        "type": "治疗"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "冠状动脉粥样硬化性心脏病",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "高胆固醇血症",
+        "type": "治疗"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "高胆固醇血症",
+        "type": "治疗"
+      },
+      {
+        "source": "依折麦布",
+        "target": "高脂血症",
+        "type": "治疗"
+      },
+      {
+        "source": "依那普利",
+        "target": "心力衰竭",
+        "type": "治疗"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "心力衰竭",
+        "type": "治疗"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "稳定性心绞痛",
+        "type": "治疗"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "哮喘",
+        "type": "治疗"
+      },
+      {
+        "source": "布地奈德",
+        "target": "慢性阻塞性肺疾病",
+        "type": "治疗"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "胃食管反流病",
+        "type": "治疗"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "胃食管反流病",
+        "type": "治疗"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "鼻塞",
+        "type": "缓解"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "鼻炎",
+        "type": "治疗"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "高脂血症",
+        "type": "治疗"
+      },
+      {
+        "source": "胰岛素",
+        "target": "高血糖",
+        "type": "治疗"
+      },
+      {
+        "source": "华法林",
+        "target": "血栓",
+        "type": "治疗"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "甲状腺功能减退",
+        "type": "治疗"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "血管痉挛性心绞痛",
+        "type": "治疗"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "肾功能损害",
+        "type": "治疗"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "肾功能损害",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "糖尿病",
+        "type": "治疗"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "烧心",
+        "type": "缓解"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "烧心",
+        "type": "缓解"
+      },
+      {
+        "source": "布洛芬",
+        "target": "发热",
+        "type": "缓解"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "发热",
+        "type": "缓解"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "支气管痉挛",
+        "type": "缓解"
+      },
+      {
+        "source": "布地奈德",
+        "target": "气道炎症",
+        "type": "作用于"
+      },
+      {
+        "source": "西地那非",
+        "target": "肺动脉高压",
+        "type": "治疗"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "冠状动脉",
+        "type": "作用于"
+      },
+      {
+        "source": "依那普利",
+        "target": "血管紧张素II",
+        "type": "作用于"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "血管紧张素II",
+        "type": "作用于"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "血管紧张素II",
+        "type": "作用于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "血小板",
+        "type": "作用于"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "二磷酸腺苷",
+        "type": "作用于"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "钙离子",
+        "type": "作用于"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "钙离子",
+        "type": "作用于"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "胃壁细胞",
+        "type": "作用于"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "胃壁细胞",
+        "type": "作用于"
+      },
+      {
+        "source": "布地奈德",
+        "target": "哮喘",
+        "type": "治疗"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "慢性阻塞性肺疾病",
+        "type": "治疗"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "幽门螺杆菌感染",
+        "type": "治疗"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "胃溃疡",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "心肌梗死",
+        "type": "治疗"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "心肌梗死",
+        "type": "治疗"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "多囊卵巢综合征",
+        "type": "治疗"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "颈淋巴结",
+        "type": "治疗"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "过敏性结膜炎",
+        "type": "治疗"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "过敏性结膜炎",
+        "type": "治疗"
+      },
+      {
+        "source": "糠酸莫米松",
+        "target": "过敏性鼻炎",
+        "type": "治疗"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "高尿酸血症",
+        "type": "治疗"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "水杨酸中毒",
+        "type": "副作用"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "肝坏死",
+        "type": "副作用"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "伪膜性肠炎",
+        "type": "副作用"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "伪膜性肠炎",
+        "type": "副作用"
+      },
+      {
+        "source": "西地那非",
+        "target": "视神经病变",
+        "type": "副作用"
+      },
+      {
+        "source": "华法林",
+        "target": "皮肤坏死",
+        "type": "副作用"
+      },
+      {
+        "source": "依那普利",
+        "target": "肾功能损害",
+        "type": "副作用"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "牙龈增生",
+        "type": "副作用"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "心房颤动",
+        "type": "副作用"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "胃肠道不适",
+        "type": "副作用"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "肌病",
+        "type": "副作用"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "肌病",
+        "type": "副作用"
+      },
+      {
+        "source": "布地奈德",
+        "target": "骨质疏松",
+        "type": "副作用"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "骨折",
+        "type": "副作用"
+      },
+      {
+        "source": "高血压",
+        "target": "冠心病",
+        "type": "属于"
+      },
+      {
+        "source": "高脂血症",
+        "target": "冠心病",
+        "type": "属于"
+      },
+      {
+        "source": "糖尿病",
+        "target": "冠心病",
+        "type": "属于"
+      },
+      {
+        "source": "高尿酸血症",
+        "target": "高血压",
+        "type": "属于"
+      },
+      {
+        "source": "2型糖尿病",
+        "target": "高血压",
+        "type": "属于"
+      },
+      {
+        "source": "哮喘",
+        "target": "过敏性鼻炎",
+        "type": "属于"
+      },
+      {
+        "source": "慢性阻塞性肺疾病",
+        "target": "哮喘",
+        "type": "属于"
+      },
+      {
+        "source": "心力衰竭",
+        "target": "高血压",
+        "type": "属于"
+      },
+      {
+        "source": "心房颤动",
+        "target": "脑卒中",
+        "type": "属于"
+      },
+      {
+        "source": "胃溃疡",
+        "target": "消化性溃疡",
+        "type": "属于"
+      },
+      {
+        "source": "十二指肠溃疡",
+        "target": "消化性溃疡",
+        "type": "属于"
+      },
+      {
+        "source": "胃食管反流病",
+        "target": "消化性溃疡",
+        "type": "属于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "布洛芬",
+        "target": "疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "动脉粥样硬化",
+        "type": "治疗"
+      },
+      {
+        "source": "依折麦布",
+        "target": "动脉粥样硬化",
+        "type": "治疗"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "流泪",
+        "type": "缓解"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "流泪",
+        "type": "缓解"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "咽喉疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "布洛芬",
+        "target": "咽喉疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "口干",
+        "type": "副作用"
+      },
+      {
+        "source": "布地奈德",
+        "target": "口干",
+        "type": "副作用"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "心绞痛",
+        "type": "治疗"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "心绞痛",
+        "type": "治疗"
+      },
+      {
+        "source": "依那普利",
+        "target": "低血压",
+        "type": "副作用"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "低血压",
+        "type": "副作用"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "肌痛",
+        "type": "副作用"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "肌痛",
+        "type": "副作用"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "血栓",
+        "type": "治疗"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "血栓",
+        "type": "治疗"
+      },
+      {
+        "source": "华法林",
+        "target": "血栓",
+        "type": "治疗"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "胃炎",
+        "type": "治疗"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "胃炎",
+        "type": "治疗"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "咽炎",
+        "type": "治疗"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "咽炎",
+        "type": "治疗"
+      },
+      {
+        "source": "布地奈德",
+        "target": "哮喘",
+        "type": "治疗"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "肥胖",
+        "type": "缓解"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "肥胖",
+        "type": "治疗"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "关节炎",
+        "type": "缓解"
+      },
+      {
+        "source": "布洛芬",
+        "target": "关节炎",
+        "type": "缓解"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "消化不良",
+        "type": "缓解"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "消化不良",
+        "type": "缓解"
+      },
+      {
+        "source": "西地那非",
+        "target": "心悸",
+        "type": "副作用"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "心绞痛",
+        "type": "治疗"
+      }
+    ]
+  },
+  {
+    "chunk_index": 8,
+    "source": "cetirizine.txt",
+    "entities": [
+      {
+        "name": "西替利嗪",
+        "type": "药物"
+      },
+      {
+        "name": "第二代抗组胺药",
+        "type": "概念"
+      },
+      {
+        "name": "哌嗪类",
+        "type": "概念"
+      },
+      {
+        "name": "组胺H1受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "组胺",
+        "type": "概念"
+      },
+      {
+        "name": "过敏性鼻炎",
+        "type": "疾病"
+      },
+      {
+        "name": "过敏性结膜炎",
+        "type": "疾病"
+      },
+      {
+        "name": "荨麻疹",
+        "type": "疾病"
+      },
+      {
+        "name": "鼻痒",
+        "type": "症状"
+      },
+      {
+        "name": "喷嚏",
+        "type": "症状"
+      },
+      {
+        "name": "流涕",
+        "type": "症状"
+      },
+      {
+        "name": "流泪",
+        "type": "症状"
+      },
+      {
+        "name": "嗜睡",
+        "type": "副作用"
+      },
+      {
+        "name": "乏力",
+        "type": "副作用"
+      },
+      {
+        "name": "口干",
+        "type": "副作用"
+      },
+      {
+        "name": "头晕",
+        "type": "副作用"
+      },
+      {
+        "name": "氯雷他定",
+        "type": "药物"
+      },
+      {
+        "name": "优时比公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "西替利嗪",
+        "target": "组胺H1受体",
+        "type": "作用于"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "过敏性鼻炎",
+        "type": "治疗"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "过敏性结膜炎",
+        "type": "治疗"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "荨麻疹",
+        "type": "治疗"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "鼻痒",
+        "type": "缓解"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "喷嚏",
+        "type": "缓解"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "流涕",
+        "type": "缓解"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "流泪",
+        "type": "缓解"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "嗜睡",
+        "type": "副作用"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "乏力",
+        "type": "副作用"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "口干",
+        "type": "副作用"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "头晕",
+        "type": "副作用"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "第二代抗组胺药",
+        "type": "属于"
+      },
+      {
+        "source": "优时比公司",
+        "target": "西替利嗪",
+        "type": "研发"
+      },
+      {
+        "source": "组胺",
+        "target": "组胺H1受体",
+        "type": "作用于"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "过敏性鼻炎",
+        "type": "治疗"
+      }
+    ]
+  },
+  {
+    "chunk_index": 9,
+    "source": "clarithromycin.txt",
+    "entities": [
+      {
+        "name": "克拉霉素",
+        "type": "药物"
+      },
+      {
+        "name": "大环内酯类",
+        "type": "概念"
+      },
+      {
+        "name": "核糖体50S亚基",
+        "type": "作用机制"
+      },
+      {
+        "name": "蛋白质合成",
+        "type": "概念"
+      },
+      {
+        "name": "呼吸道感染",
+        "type": "疾病"
+      },
+      {
+        "name": "鼻窦炎",
+        "type": "疾病"
+      },
+      {
+        "name": "中耳炎",
+        "type": "疾病"
+      },
+      {
+        "name": "皮肤感染",
+        "type": "疾病"
+      },
+      {
+        "name": "幽门螺杆菌",
+        "type": "概念"
+      },
+      {
+        "name": "恶心",
+        "type": "副作用"
+      },
+      {
+        "name": "腹泻",
+        "type": "副作用"
+      },
+      {
+        "name": "腹痛",
+        "type": "副作用"
+      },
+      {
+        "name": "味觉异常",
+        "type": "副作用"
+      },
+      {
+        "name": "肝酶升高",
+        "type": "副作用"
+      },
+      {
+        "name": "雅培公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "克拉霉素",
+        "target": "核糖体50S亚基",
+        "type": "作用于"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "呼吸道感染",
+        "type": "治疗"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "鼻窦炎",
+        "type": "治疗"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "中耳炎",
+        "type": "治疗"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "皮肤感染",
+        "type": "治疗"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "幽门螺杆菌",
+        "type": "治疗"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "恶心",
+        "type": "副作用"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "腹泻",
+        "type": "副作用"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "腹痛",
+        "type": "副作用"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "味觉异常",
+        "type": "副作用"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "肝酶升高",
+        "type": "副作用"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "大环内酯类",
+        "type": "属于"
+      },
+      {
+        "source": "雅培公司",
+        "target": "克拉霉素",
+        "type": "研发"
+      }
+    ]
+  },
+  {
+    "chunk_index": 10,
+    "source": "clopidogrel.txt",
+    "entities": [
+      {
+        "name": "氯吡格雷",
+        "type": "药物"
+      },
+      {
+        "name": "噻吩并吡啶类",
+        "type": "概念"
+      },
+      {
+        "name": "P2Y12受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "二磷酸腺苷",
+        "type": "概念"
+      },
+      {
+        "name": "血小板",
+        "type": "概念"
+      },
+      {
+        "name": "冠状动脉粥样硬化性心脏病",
+        "type": "疾病"
+      },
+      {
+        "name": "心肌梗死",
+        "type": "疾病"
+      },
+      {
+        "name": "缺血性脑卒中",
+        "type": "疾病"
+      },
+      {
+        "name": "阿司匹林",
+        "type": "药物"
+      },
+      {
+        "name": "出血",
+        "type": "副作用"
+      },
+      {
+        "name": "鼻出血",
+        "type": "副作用"
+      },
+      {
+        "name": "牙龈出血",
+        "type": "副作用"
+      },
+      {
+        "name": "皮下瘀斑",
+        "type": "副作用"
+      },
+      {
+        "name": "胃肠道出血",
+        "type": "副作用"
+      },
+      {
+        "name": "赛诺菲公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "氯吡格雷",
+        "target": "P2Y12受体",
+        "type": "作用于"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "冠状动脉粥样硬化性心脏病",
+        "type": "治疗"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "心肌梗死",
+        "type": "治疗"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "缺血性脑卒中",
+        "type": "治疗"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "出血",
+        "type": "副作用"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "鼻出血",
+        "type": "副作用"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "牙龈出血",
+        "type": "副作用"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "皮下瘀斑",
+        "type": "副作用"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "胃肠道出血",
+        "type": "副作用"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "血小板",
+        "type": "作用于"
+      },
+      {
+        "source": "氯吡格雷",
+        "target": "噻吩并吡啶类",
+        "type": "属于"
+      },
+      {
+        "source": "赛诺菲公司",
+        "target": "氯吡格雷",
+        "type": "研发"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "心肌梗死",
+        "type": "治疗"
+      },
+      {
+        "source": "二磷酸腺苷",
+        "target": "P2Y12受体",
+        "type": "作用于"
+      }
+    ]
+  },
+  {
+    "chunk_index": 11,
+    "source": "enalapril.txt",
+    "entities": [
+      {
+        "name": "依那普利",
+        "type": "药物"
+      },
+      {
+        "name": "血管紧张素转化酶抑制剂",
+        "type": "概念"
+      },
+      {
+        "name": "血管紧张素转化酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "血管紧张素II",
+        "type": "概念"
+      },
+      {
+        "name": "醛固酮",
+        "type": "概念"
+      },
+      {
+        "name": "高血压",
+        "type": "疾病"
+      },
+      {
+        "name": "心力衰竭",
+        "type": "疾病"
+      },
+      {
+        "name": "干咳",
+        "type": "副作用"
+      },
+      {
+        "name": "头晕",
+        "type": "副作用"
+      },
+      {
+        "name": "高钾血症",
+        "type": "副作用"
+      },
+      {
+        "name": "血管性水肿",
+        "type": "副作用"
+      },
+      {
+        "name": "默沙东公司",
+        "type": "公司"
+      },
+      {
+        "name": "氯沙坦",
+        "type": "药物"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "依那普利",
+        "target": "血管紧张素转化酶",
+        "type": "作用于"
+      },
+      {
+        "source": "依那普利",
+        "target": "高血压",
+        "type": "治疗"
+      },
+      {
+        "source": "依那普利",
+        "target": "心力衰竭",
+        "type": "治疗"
+      },
+      {
+        "source": "依那普利",
+        "target": "干咳",
+        "type": "副作用"
+      },
+      {
+        "source": "依那普利",
+        "target": "头晕",
+        "type": "副作用"
+      },
+      {
+        "source": "依那普利",
+        "target": "高钾血症",
+        "type": "副作用"
+      },
+      {
+        "source": "依那普利",
+        "target": "血管性水肿",
+        "type": "副作用"
+      },
+      {
+        "source": "依那普利",
+        "target": "血管紧张素转化酶抑制剂",
+        "type": "属于"
+      },
+      {
+        "source": "默沙东公司",
+        "target": "依那普利",
+        "type": "研发"
+      },
+      {
+        "source": "血管紧张素转化酶",
+        "target": "血管紧张素II",
+        "type": "作用于"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "高血压",
+        "type": "治疗"
+      }
+    ]
+  },
+  {
+    "chunk_index": 12,
+    "source": "ezetimibe.txt",
+    "entities": [
+      {
+        "name": "依折麦布",
+        "type": "药物"
+      },
+      {
+        "name": "胆固醇吸收抑制剂",
+        "type": "概念"
+      },
+      {
+        "name": "尼曼-匹克C1型类似蛋白1",
+        "type": "作用机制"
+      },
+      {
+        "name": "小肠刷状缘",
+        "type": "概念"
+      },
+      {
+        "name": "胆固醇",
+        "type": "概念"
+      },
+      {
+        "name": "高胆固醇血症",
+        "type": "疾病"
+      },
+      {
+        "name": "头痛",
+        "type": "副作用"
+      },
+      {
+        "name": "腹泻",
+        "type": "副作用"
+      },
+      {
+        "name": "腹痛",
+        "type": "副作用"
+      },
+      {
+        "name": "默沙东公司",
+        "type": "公司"
+      },
+      {
+        "name": "阿托伐他汀",
+        "type": "药物"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "依折麦布",
+        "target": "尼曼-匹克C1型类似蛋白1",
+        "type": "作用于"
+      },
+      {
+        "source": "依折麦布",
+        "target": "高胆固醇血症",
+        "type": "治疗"
+      },
+      {
+        "source": "依折麦布",
+        "target": "胆固醇",
+        "type": "作用于"
+      },
+      {
+        "source": "依折麦布",
+        "target": "头痛",
+        "type": "副作用"
+      },
+      {
+        "source": "依折麦布",
+        "target": "腹泻",
+        "type": "副作用"
+      },
+      {
+        "source": "依折麦布",
+        "target": "腹痛",
+        "type": "副作用"
+      },
+      {
+        "source": "依折麦布",
+        "target": "胆固醇吸收抑制剂",
+        "type": "属于"
+      },
+      {
+        "source": "默沙东公司",
+        "target": "依折麦布",
+        "type": "研发"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "高胆固醇血症",
+        "type": "治疗"
+      }
+    ]
+  },
+  {
+    "chunk_index": 13,
+    "source": "famotidine.txt",
+    "entities": [
+      {
+        "name": "法莫替丁",
+        "type": "药物"
+      },
+      {
+        "name": "组胺H2受体拮抗剂",
+        "type": "概念"
+      },
+      {
+        "name": "组胺H2受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "胃壁细胞",
+        "type": "概念"
+      },
+      {
+        "name": "胃酸",
+        "type": "概念"
+      },
+      {
+        "name": "胃溃疡",
+        "type": "疾病"
+      },
+      {
+        "name": "十二指肠溃疡",
+        "type": "疾病"
+      },
+      {
+        "name": "胃食管反流病",
+        "type": "疾病"
+      },
+      {
+        "name": "反酸",
+        "type": "症状"
+      },
+      {
+        "name": "烧心",
+        "type": "症状"
+      },
+      {
+        "name": "上腹疼痛",
+        "type": "症状"
+      },
+      {
+        "name": "头痛",
+        "type": "副作用"
+      },
+      {
+        "name": "头晕",
+        "type": "副作用"
+      },
+      {
+        "name": "便秘",
+        "type": "副作用"
+      },
+      {
+        "name": "腹泻",
+        "type": "副作用"
+      },
+      {
+        "name": "皮疹",
+        "type": "副作用"
+      },
+      {
+        "name": "奥美拉唑",
+        "type": "药物"
+      },
+      {
+        "name": "山之内制药公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "法莫替丁",
+        "target": "组胺H2受体",
+        "type": "作用于"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "胃溃疡",
+        "type": "治疗"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "十二指肠溃疡",
+        "type": "治疗"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "胃食管反流病",
+        "type": "治疗"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "反酸",
+        "type": "缓解"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "烧心",
+        "type": "缓解"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "上腹疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "头痛",
+        "type": "副作用"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "头晕",
+        "type": "副作用"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "便秘",
+        "type": "副作用"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "腹泻",
+        "type": "副作用"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "皮疹",
+        "type": "副作用"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "胃酸",
+        "type": "作用于"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "组胺H2受体拮抗剂",
+        "type": "属于"
+      },
+      {
+        "source": "山之内制药公司",
+        "target": "法莫替丁",
+        "type": "研发"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "胃溃疡",
+        "type": "治疗"
+      }
+    ]
+  },
+  {
+    "chunk_index": 14,
+    "source": "hyperlipidemia.txt",
+    "entities": [
+      {
+        "name": "高脂血症",
+        "type": "疾病"
+      },
+      {
+        "name": "总胆固醇",
+        "type": "概念"
+      },
+      {
+        "name": "低密度脂蛋白胆固醇",
+        "type": "概念"
+      },
+      {
+        "name": "甘油三酯",
+        "type": "概念"
+      },
+      {
+        "name": "动脉粥样硬化",
+        "type": "疾病"
+      },
+      {
+        "name": "血管壁斑块",
+        "type": "概念"
+      },
+      {
+        "name": "心肌梗死",
+        "type": "疾病"
+      },
+      {
+        "name": "缺血性脑卒中",
+        "type": "疾病"
+      },
+      {
+        "name": "阿托伐他汀",
+        "type": "药物"
+      },
+      {
+        "name": "瑞舒伐他汀",
+        "type": "药物"
+      },
+      {
+        "name": "依折麦布",
+        "type": "药物"
+      },
+      {
+        "name": "他汀类",
+        "type": "概念"
+      },
+      {
+        "name": "羟甲基戊二酰辅酶A还原酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "高血压",
+        "type": "疾病"
+      },
+      {
+        "name": "糖尿病",
+        "type": "疾病"
+      },
+      {
+        "name": "高脂饮食",
+        "type": "概念"
+      },
+      {
+        "name": "运动",
+        "type": "概念"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "阿托伐他汀",
+        "target": "羟甲基戊二酰辅酶A还原酶",
+        "type": "作用于"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "低密度脂蛋白胆固醇",
+        "type": "作用于"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "高脂血症",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "动脉粥样硬化",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "心肌梗死",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "缺血性脑卒中",
+        "type": "治疗"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "高脂血症",
+        "type": "治疗"
+      },
+      {
+        "source": "依折麦布",
+        "target": "高脂血症",
+        "type": "治疗"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "他汀类",
+        "type": "属于"
+      },
+      {
+        "source": "低密度脂蛋白胆固醇",
+        "target": "动脉粥样硬化",
+        "type": "作用于"
+      },
+      {
+        "source": "高脂血症",
+        "target": "心肌梗死",
+        "type": "属于"
+      },
+      {
+        "source": "高血压",
+        "target": "高脂血症",
+        "type": "属于"
+      },
+      {
+        "source": "糖尿病",
+        "target": "高脂血症",
+        "type": "属于"
+      },
+      {
+        "source": "高脂饮食",
+        "target": "高脂血症",
+        "type": "作用于"
+      },
+      {
+        "source": "运动",
+        "target": "高脂血症",
+        "type": "治疗"
+      }
+    ]
+  },
+  {
+    "chunk_index": 15,
+    "source": "hypertension_overview.txt",
+    "entities": [
+      {
+        "name": "高血压",
+        "type": "疾病"
+      },
+      {
+        "name": "心肌梗死",
+        "type": "疾病"
+      },
+      {
+        "name": "脑卒中",
+        "type": "疾病"
+      },
+      {
+        "name": "肾功能损害",
+        "type": "疾病"
+      },
+      {
+        "name": "头晕",
+        "type": "症状"
+      },
+      {
+        "name": "头痛",
+        "type": "症状"
+      },
+      {
+        "name": "心悸",
+        "type": "症状"
+      },
+      {
+        "name": "乏力",
+        "type": "症状"
+      },
+      {
+        "name": "钙通道阻滞剂",
+        "type": "概念"
+      },
+      {
+        "name": "血管紧张素II受体拮抗剂",
+        "type": "概念"
+      },
+      {
+        "name": "血管紧张素转化酶抑制剂",
+        "type": "概念"
+      },
+      {
+        "name": "利尿剂",
+        "type": "概念"
+      },
+      {
+        "name": "β受体阻滞剂",
+        "type": "概念"
+      },
+      {
+        "name": "氨氯地平",
+        "type": "药物"
+      },
+      {
+        "name": "氯沙坦",
+        "type": "药物"
+      },
+      {
+        "name": "缬沙坦",
+        "type": "药物"
+      },
+      {
+        "name": "依那普利",
+        "type": "药物"
+      },
+      {
+        "name": "卡托普利",
+        "type": "药物"
+      },
+      {
+        "name": "血管紧张素II受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "血管紧张素转化酶",
+        "type": "作用机制"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "氨氯地平",
+        "target": "高血压",
+        "type": "治疗"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "高血压",
+        "type": "治疗"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "高血压",
+        "type": "治疗"
+      },
+      {
+        "source": "依那普利",
+        "target": "高血压",
+        "type": "治疗"
+      },
+      {
+        "source": "卡托普利",
+        "target": "高血压",
+        "type": "治疗"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "钙通道阻滞剂",
+        "type": "属于"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "血管紧张素II受体拮抗剂",
+        "type": "属于"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "血管紧张素II受体拮抗剂",
+        "type": "属于"
+      },
+      {
+        "source": "依那普利",
+        "target": "血管紧张素转化酶抑制剂",
+        "type": "属于"
+      },
+      {
+        "source": "卡托普利",
+        "target": "血管紧张素转化酶抑制剂",
+        "type": "属于"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "血管紧张素II受体",
+        "type": "作用于"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "血管紧张素II受体",
+        "type": "作用于"
+      },
+      {
+        "source": "依那普利",
+        "target": "血管紧张素转化酶",
+        "type": "作用于"
+      },
+      {
+        "source": "卡托普利",
+        "target": "血管紧张素转化酶",
+        "type": "作用于"
+      },
+      {
+        "source": "高血压",
+        "target": "头晕",
+        "type": "属于"
+      },
+      {
+        "source": "高血压",
+        "target": "头痛",
+        "type": "属于"
+      },
+      {
+        "source": "高血压",
+        "target": "心悸",
+        "type": "属于"
+      },
+      {
+        "source": "高血压",
+        "target": "心肌梗死",
+        "type": "属于"
+      },
+      {
+        "source": "高血压",
+        "target": "脑卒中",
+        "type": "属于"
+      },
+      {
+        "source": "高血压",
+        "target": "肾功能损害",
+        "type": "属于"
+      }
+    ]
+  },
+  {
+    "chunk_index": 16,
+    "source": "ibuprofen.txt",
+    "entities": [
+      {
+        "name": "布洛芬",
+        "type": "药物"
+      },
+      {
+        "name": "非甾体抗炎药",
+        "type": "概念"
+      },
+      {
+        "name": "丙酸类",
+        "type": "概念"
+      },
+      {
+        "name": "环氧合酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "前列腺素",
+        "type": "概念"
+      },
+      {
+        "name": "花生四烯酸",
+        "type": "概念"
+      },
+      {
+        "name": "头痛",
+        "type": "症状"
+      },
+      {
+        "name": "牙痛",
+        "type": "症状"
+      },
+      {
+        "name": "痛经",
+        "type": "症状"
+      },
+      {
+        "name": "肌肉疼痛",
+        "type": "症状"
+      },
+      {
+        "name": "关节疼痛",
+        "type": "症状"
+      },
+      {
+        "name": "发热",
+        "type": "症状"
+      },
+      {
+        "name": "骨关节炎",
+        "type": "疾病"
+      },
+      {
+        "name": "类风湿关节炎",
+        "type": "疾病"
+      },
+      {
+        "name": "关节肿胀",
+        "type": "症状"
+      },
+      {
+        "name": "胃肠道不适",
+        "type": "副作用"
+      },
+      {
+        "name": "胃痛",
+        "type": "副作用"
+      },
+      {
+        "name": "恶心",
+        "type": "副作用"
+      },
+      {
+        "name": "消化不良",
+        "type": "副作用"
+      },
+      {
+        "name": "胃溃疡",
+        "type": "疾病"
+      },
+      {
+        "name": "肾功能损害",
+        "type": "疾病"
+      },
+      {
+        "name": "皮疹",
+        "type": "副作用"
+      },
+      {
+        "name": "布洛芬缓释胶囊",
+        "type": "药物"
+      },
+      {
+        "name": "阿司匹林",
+        "type": "药物"
+      },
+      {
+        "name": "百时美施贵宝公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "布洛芬",
+        "target": "环氧合酶",
+        "type": "作用于"
+      },
+      {
+        "source": "布洛芬",
+        "target": "前列腺素",
+        "type": "作用于"
+      },
+      {
+        "source": "布洛芬",
+        "target": "头痛",
+        "type": "缓解"
+      },
+      {
+        "source": "布洛芬",
+        "target": "牙痛",
+        "type": "缓解"
+      },
+      {
+        "source": "布洛芬",
+        "target": "痛经",
+        "type": "缓解"
+      },
+      {
+        "source": "布洛芬",
+        "target": "肌肉疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "布洛芬",
+        "target": "关节疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "布洛芬",
+        "target": "发热",
+        "type": "缓解"
+      },
+      {
+        "source": "布洛芬",
+        "target": "骨关节炎",
+        "type": "治疗"
+      },
+      {
+        "source": "布洛芬",
+        "target": "类风湿关节炎",
+        "type": "治疗"
+      },
+      {
+        "source": "布洛芬",
+        "target": "关节肿胀",
+        "type": "缓解"
+      },
+      {
+        "source": "布洛芬",
+        "target": "胃肠道不适",
+        "type": "副作用"
+      },
+      {
+        "source": "布洛芬",
+        "target": "胃痛",
+        "type": "副作用"
+      },
+      {
+        "source": "布洛芬",
+        "target": "恶心",
+        "type": "副作用"
+      },
+      {
+        "source": "布洛芬",
+        "target": "消化不良",
+        "type": "副作用"
+      },
+      {
+        "source": "布洛芬",
+        "target": "胃溃疡",
+        "type": "副作用"
+      },
+      {
+        "source": "布洛芬",
+        "target": "肾功能损害",
+        "type": "副作用"
+      },
+      {
+        "source": "布洛芬",
+        "target": "皮疹",
+        "type": "副作用"
+      },
+      {
+        "source": "布洛芬",
+        "target": "非甾体抗炎药",
+        "type": "属于"
+      },
+      {
+        "source": "布洛芬缓释胶囊",
+        "target": "布洛芬",
+        "type": "属于"
+      },
+      {
+        "source": "布洛芬缓释胶囊",
+        "target": "关节疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "百时美施贵宝公司",
+        "target": "布洛芬",
+        "type": "研发"
+      }
+    ]
+  },
+  {
+    "chunk_index": 17,
+    "source": "levothyroxine.txt",
+    "entities": [
+      {
+        "name": "左甲状腺素",
+        "type": "药物"
+      },
+      {
+        "name": "甲状腺激素",
+        "type": "概念"
+      },
+      {
+        "name": "四碘甲状腺原氨酸",
+        "type": "概念"
+      },
+      {
+        "name": "甲状腺功能减退症",
+        "type": "疾病"
+      },
+      {
+        "name": "基础代谢率",
+        "type": "概念"
+      },
+      {
+        "name": "乏力",
+        "type": "症状"
+      },
+      {
+        "name": "怕冷",
+        "type": "症状"
+      },
+      {
+        "name": "体重增加",
+        "type": "症状"
+      },
+      {
+        "name": "皮肤干燥",
+        "type": "症状"
+      },
+      {
+        "name": "便秘",
+        "type": "症状"
+      },
+      {
+        "name": "甲状腺癌",
+        "type": "疾病"
+      },
+      {
+        "name": "甲亢",
+        "type": "疾病"
+      },
+      {
+        "name": "心悸",
+        "type": "副作用"
+      },
+      {
+        "name": "失眠",
+        "type": "副作用"
+      },
+      {
+        "name": "出汗增多",
+        "type": "副作用"
+      },
+      {
+        "name": "体重下降",
+        "type": "副作用"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "左甲状腺素",
+        "target": "甲状腺功能减退症",
+        "type": "治疗"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "乏力",
+        "type": "缓解"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "怕冷",
+        "type": "缓解"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "体重增加",
+        "type": "缓解"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "皮肤干燥",
+        "type": "缓解"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "便秘",
+        "type": "缓解"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "甲状腺癌",
+        "type": "治疗"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "心悸",
+        "type": "副作用"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "失眠",
+        "type": "副作用"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "出汗增多",
+        "type": "副作用"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "体重下降",
+        "type": "副作用"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "甲状腺激素",
+        "type": "属于"
+      },
+      {
+        "source": "左甲状腺素",
+        "target": "基础代谢率",
+        "type": "作用于"
+      },
+      {
+        "source": "甲亢",
+        "target": "心悸",
+        "type": "属于"
+      }
+    ]
+  },
+  {
+    "chunk_index": 18,
+    "source": "loratadine.txt",
+    "entities": [
+      {
+        "name": "氯雷他定",
+        "type": "药物"
+      },
+      {
+        "name": "第二代抗组胺药",
+        "type": "概念"
+      },
+      {
+        "name": "三环类",
+        "type": "概念"
+      },
+      {
+        "name": "组胺H1受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "组胺",
+        "type": "概念"
+      },
+      {
+        "name": "过敏性鼻炎",
+        "type": "疾病"
+      },
+      {
+        "name": "慢性荨麻疹",
+        "type": "疾病"
+      },
+      {
+        "name": "打喷嚏",
+        "type": "症状"
+      },
+      {
+        "name": "流鼻涕",
+        "type": "症状"
+      },
+      {
+        "name": "鼻痒",
+        "type": "症状"
+      },
+      {
+        "name": "鼻塞",
+        "type": "症状"
+      },
+      {
+        "name": "皮肤瘙痒",
+        "type": "症状"
+      },
+      {
+        "name": "风团",
+        "type": "症状"
+      },
+      {
+        "name": "血脑屏障",
+        "type": "概念"
+      },
+      {
+        "name": "嗜睡",
+        "type": "副作用"
+      },
+      {
+        "name": "口干",
+        "type": "副作用"
+      },
+      {
+        "name": "头痛",
+        "type": "副作用"
+      },
+      {
+        "name": "乏力",
+        "type": "副作用"
+      },
+      {
+        "name": "西替利嗪",
+        "type": "药物"
+      },
+      {
+        "name": "默沙东公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "氯雷他定",
+        "target": "组胺H1受体",
+        "type": "作用于"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "过敏性鼻炎",
+        "type": "治疗"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "慢性荨麻疹",
+        "type": "治疗"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "打喷嚏",
+        "type": "缓解"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "流鼻涕",
+        "type": "缓解"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "鼻痒",
+        "type": "缓解"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "鼻塞",
+        "type": "缓解"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "皮肤瘙痒",
+        "type": "缓解"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "风团",
+        "type": "缓解"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "嗜睡",
+        "type": "副作用"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "口干",
+        "type": "副作用"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "头痛",
+        "type": "副作用"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "乏力",
+        "type": "副作用"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "第二代抗组胺药",
+        "type": "属于"
+      },
+      {
+        "source": "默沙东公司",
+        "target": "氯雷他定",
+        "type": "研发"
+      },
+      {
+        "source": "组胺",
+        "target": "组胺H1受体",
+        "type": "作用于"
+      },
+      {
+        "source": "西替利嗪",
+        "target": "过敏性鼻炎",
+        "type": "治疗"
+      },
+      {
+        "source": "氯雷他定",
+        "target": "血脑屏障",
+        "type": "作用于"
+      }
+    ]
+  },
+  {
+    "chunk_index": 19,
+    "source": "losartan.txt",
+    "entities": [
+      {
+        "name": "氯沙坦",
+        "type": "药物"
+      },
+      {
+        "name": "血管紧张素II受体拮抗剂",
+        "type": "概念"
+      },
+      {
+        "name": "血管紧张素受体阻滞剂",
+        "type": "概念"
+      },
+      {
+        "name": "血管紧张素II受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "血管紧张素II",
+        "type": "概念"
+      },
+      {
+        "name": "醛固酮",
+        "type": "概念"
+      },
+      {
+        "name": "高血压",
+        "type": "疾病"
+      },
+      {
+        "name": "左心室肥厚",
+        "type": "疾病"
+      },
+      {
+        "name": "糖尿病肾病",
+        "type": "疾病"
+      },
+      {
+        "name": "蛋白尿",
+        "type": "症状"
+      },
+      {
+        "name": "高尿酸血症",
+        "type": "疾病"
+      },
+      {
+        "name": "头晕",
+        "type": "副作用"
+      },
+      {
+        "name": "乏力",
+        "type": "副作用"
+      },
+      {
+        "name": "高钾血症",
+        "type": "副作用"
+      },
+      {
+        "name": "干咳",
+        "type": "副作用"
+      },
+      {
+        "name": "尿酸",
+        "type": "概念"
+      },
+      {
+        "name": "默沙东公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "氯沙坦",
+        "target": "血管紧张素II受体",
+        "type": "作用于"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "高血压",
+        "type": "治疗"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "左心室肥厚",
+        "type": "治疗"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "糖尿病肾病",
+        "type": "治疗"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "蛋白尿",
+        "type": "缓解"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "高尿酸血症",
+        "type": "治疗"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "头晕",
+        "type": "副作用"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "乏力",
+        "type": "副作用"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "高钾血症",
+        "type": "副作用"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "干咳",
+        "type": "副作用"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "尿酸",
+        "type": "作用于"
+      },
+      {
+        "source": "氯沙坦",
+        "target": "血管紧张素II受体拮抗剂",
+        "type": "属于"
+      },
+      {
+        "source": "默沙东公司",
+        "target": "氯沙坦",
+        "type": "研发"
+      },
+      {
+        "source": "血管紧张素II",
+        "target": "血管紧张素II受体",
+        "type": "作用于"
+      },
+      {
+        "source": "血管紧张素II",
+        "target": "醛固酮",
+        "type": "作用于"
+      }
+    ]
+  },
+  {
+    "chunk_index": 20,
+    "source": "metformin.txt",
+    "entities": [
+      {
+        "name": "二甲双胍",
+        "type": "药物"
+      },
+      {
+        "name": "双胍类",
+        "type": "概念"
+      },
+      {
+        "name": "一磷酸腺苷活化蛋白激酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "胰岛素敏感性",
+        "type": "概念"
+      },
+      {
+        "name": "肝糖异生",
+        "type": "概念"
+      },
+      {
+        "name": "胰岛素敏感性",
+        "type": "概念"
+      },
+      {
+        "name": "2型糖尿病",
+        "type": "疾病"
+      },
+      {
+        "name": "多囊卵巢综合征",
+        "type": "疾病"
+      },
+      {
+        "name": "低血糖",
+        "type": "副作用"
+      },
+      {
+        "name": "腹泻",
+        "type": "副作用"
+      },
+      {
+        "name": "恶心",
+        "type": "副作用"
+      },
+      {
+        "name": "腹胀",
+        "type": "副作用"
+      },
+      {
+        "name": "金属味",
+        "type": "副作用"
+      },
+      {
+        "name": "乳酸性酸中毒",
+        "type": "副作用"
+      },
+      {
+        "name": "维生素B12缺乏",
+        "type": "副作用"
+      },
+      {
+        "name": "胰岛素",
+        "type": "药物"
+      },
+      {
+        "name": "磺脲类",
+        "type": "概念"
+      },
+      {
+        "name": "格列本脲",
+        "type": "药物"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "二甲双胍",
+        "target": "一磷酸腺苷活化蛋白激酶",
+        "type": "作用于"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "2型糖尿病",
+        "type": "治疗"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "多囊卵巢综合征",
+        "type": "治疗"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "肝糖异生",
+        "type": "作用于"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "胰岛素敏感性",
+        "type": "作用于"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "腹泻",
+        "type": "副作用"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "恶心",
+        "type": "副作用"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "腹胀",
+        "type": "副作用"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "金属味",
+        "type": "副作用"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "乳酸性酸中毒",
+        "type": "副作用"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "维生素B12缺乏",
+        "type": "副作用"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "双胍类",
+        "type": "属于"
+      },
+      {
+        "source": "胰岛素",
+        "target": "2型糖尿病",
+        "type": "治疗"
+      },
+      {
+        "source": "格列本脲",
+        "target": "2型糖尿病",
+        "type": "治疗"
+      },
+      {
+        "source": "磺脲类",
+        "target": "格列本脲",
+        "type": "属于"
+      }
+    ]
+  },
+  {
+    "chunk_index": 21,
+    "source": "nifedipine.txt",
+    "entities": [
+      {
+        "name": "硝苯地平",
+        "type": "药物"
+      },
+      {
+        "name": "二氢吡啶类钙通道阻滞剂",
+        "type": "概念"
+      },
+      {
+        "name": "L型钙通道",
+        "type": "作用机制"
+      },
+      {
+        "name": "外周小动脉",
+        "type": "概念"
+      },
+      {
+        "name": "冠状动脉",
+        "type": "概念"
+      },
+      {
+        "name": "高血压",
+        "type": "疾病"
+      },
+      {
+        "name": "稳定性心绞痛",
+        "type": "疾病"
+      },
+      {
+        "name": "头痛",
+        "type": "副作用"
+      },
+      {
+        "name": "面部潮红",
+        "type": "副作用"
+      },
+      {
+        "name": "踝部水肿",
+        "type": "副作用"
+      },
+      {
+        "name": "心悸",
+        "type": "副作用"
+      },
+      {
+        "name": "牙龈增生",
+        "type": "副作用"
+      },
+      {
+        "name": "拜耳公司",
+        "type": "公司"
+      },
+      {
+        "name": "氨氯地平",
+        "type": "药物"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "硝苯地平",
+        "target": "L型钙通道",
+        "type": "作用于"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "高血压",
+        "type": "治疗"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "稳定性心绞痛",
+        "type": "治疗"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "外周小动脉",
+        "type": "作用于"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "冠状动脉",
+        "type": "作用于"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "头痛",
+        "type": "副作用"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "面部潮红",
+        "type": "副作用"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "踝部水肿",
+        "type": "副作用"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "心悸",
+        "type": "副作用"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "牙龈增生",
+        "type": "副作用"
+      },
+      {
+        "source": "硝苯地平",
+        "target": "二氢吡啶类钙通道阻滞剂",
+        "type": "属于"
+      },
+      {
+        "source": "拜耳公司",
+        "target": "硝苯地平",
+        "type": "研发"
+      },
+      {
+        "source": "氨氯地平",
+        "target": "高血压",
+        "type": "治疗"
+      }
+    ]
+  },
+  {
+    "chunk_index": 22,
+    "source": "nsaid_mechanism.txt",
+    "entities": [
+      {
+        "name": "非甾体抗炎药",
+        "type": "概念"
+      },
+      {
+        "name": "环氧合酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "环氧合酶1",
+        "type": "作用机制"
+      },
+      {
+        "name": "环氧合酶2",
+        "type": "作用机制"
+      },
+      {
+        "name": "前列腺素",
+        "type": "概念"
+      },
+      {
+        "name": "血栓素A2",
+        "type": "概念"
+      },
+      {
+        "name": "胃黏膜",
+        "type": "概念"
+      },
+      {
+        "name": "肾脏",
+        "type": "概念"
+      },
+      {
+        "name": "血小板",
+        "type": "概念"
+      },
+      {
+        "name": "炎症",
+        "type": "概念"
+      },
+      {
+        "name": "疼痛",
+        "type": "症状"
+      },
+      {
+        "name": "发热",
+        "type": "症状"
+      },
+      {
+        "name": "阿司匹林",
+        "type": "药物"
+      },
+      {
+        "name": "布洛芬",
+        "type": "药物"
+      },
+      {
+        "name": "对乙酰氨基酚",
+        "type": "药物"
+      },
+      {
+        "name": "塞来昔布",
+        "type": "药物"
+      },
+      {
+        "name": "选择性环氧合酶2抑制剂",
+        "type": "概念"
+      },
+      {
+        "name": "胃肠道出血",
+        "type": "副作用"
+      },
+      {
+        "name": "心血管事件",
+        "type": "概念"
+      },
+      {
+        "name": "肾功能损害",
+        "type": "疾病"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "非甾体抗炎药",
+        "target": "环氧合酶",
+        "type": "作用于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "环氧合酶1",
+        "type": "作用于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "环氧合酶2",
+        "type": "作用于"
+      },
+      {
+        "source": "布洛芬",
+        "target": "环氧合酶",
+        "type": "作用于"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "环氧合酶",
+        "type": "作用于"
+      },
+      {
+        "source": "塞来昔布",
+        "target": "环氧合酶2",
+        "type": "作用于"
+      },
+      {
+        "source": "环氧合酶1",
+        "target": "前列腺素",
+        "type": "作用于"
+      },
+      {
+        "source": "环氧合酶2",
+        "target": "前列腺素",
+        "type": "作用于"
+      },
+      {
+        "source": "环氧合酶1",
+        "target": "血栓素A2",
+        "type": "作用于"
+      },
+      {
+        "source": "环氧合酶1",
+        "target": "胃黏膜",
+        "type": "作用于"
+      },
+      {
+        "source": "环氧合酶2",
+        "target": "炎症",
+        "type": "作用于"
+      },
+      {
+        "source": "环氧合酶2",
+        "target": "疼痛",
+        "type": "作用于"
+      },
+      {
+        "source": "环氧合酶2",
+        "target": "发热",
+        "type": "作用于"
+      },
+      {
+        "source": "塞来昔布",
+        "target": "选择性环氧合酶2抑制剂",
+        "type": "属于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "胃肠道出血",
+        "type": "副作用"
+      },
+      {
+        "source": "布洛芬",
+        "target": "胃肠道出血",
+        "type": "副作用"
+      },
+      {
+        "source": "非甾体抗炎药",
+        "target": "肾功能损害",
+        "type": "副作用"
+      },
+      {
+        "source": "非甾体抗炎药",
+        "target": "心血管事件",
+        "type": "副作用"
+      }
+    ]
+  },
+  {
+    "chunk_index": 23,
+    "source": "omeprazole.txt",
+    "entities": [
+      {
+        "name": "奥美拉唑",
+        "type": "药物"
+      },
+      {
+        "name": "质子泵抑制剂",
+        "type": "概念"
+      },
+      {
+        "name": "苯并咪唑类",
+        "type": "概念"
+      },
+      {
+        "name": "氢钾ATP酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "质子泵",
+        "type": "概念"
+      },
+      {
+        "name": "胃酸",
+        "type": "概念"
+      },
+      {
+        "name": "胃溃疡",
+        "type": "疾病"
+      },
+      {
+        "name": "十二指肠溃疡",
+        "type": "疾病"
+      },
+      {
+        "name": "胃食管反流病",
+        "type": "疾病"
+      },
+      {
+        "name": "反酸",
+        "type": "症状"
+      },
+      {
+        "name": "烧心",
+        "type": "症状"
+      },
+      {
+        "name": "胃痛",
+        "type": "症状"
+      },
+      {
+        "name": "幽门螺杆菌",
+        "type": "概念"
+      },
+      {
+        "name": "阿莫西林",
+        "type": "药物"
+      },
+      {
+        "name": "克拉霉素",
+        "type": "药物"
+      },
+      {
+        "name": "头痛",
+        "type": "副作用"
+      },
+      {
+        "name": "恶心",
+        "type": "副作用"
+      },
+      {
+        "name": "腹泻",
+        "type": "副作用"
+      },
+      {
+        "name": "腹胀",
+        "type": "副作用"
+      },
+      {
+        "name": "骨折",
+        "type": "副作用"
+      },
+      {
+        "name": "低镁血症",
+        "type": "副作用"
+      },
+      {
+        "name": "法莫替丁",
+        "type": "药物"
+      },
+      {
+        "name": "阿斯利康公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "奥美拉唑",
+        "target": "氢钾ATP酶",
+        "type": "作用于"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "胃溃疡",
+        "type": "治疗"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "十二指肠溃疡",
+        "type": "治疗"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "胃食管反流病",
+        "type": "治疗"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "反酸",
+        "type": "缓解"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "烧心",
+        "type": "缓解"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "胃痛",
+        "type": "缓解"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "幽门螺杆菌",
+        "type": "治疗"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "胃酸",
+        "type": "作用于"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "头痛",
+        "type": "副作用"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "恶心",
+        "type": "副作用"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "腹泻",
+        "type": "副作用"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "腹胀",
+        "type": "副作用"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "骨折",
+        "type": "副作用"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "低镁血症",
+        "type": "副作用"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "质子泵抑制剂",
+        "type": "属于"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "质子泵",
+        "type": "作用于"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "幽门螺杆菌",
+        "type": "治疗"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "幽门螺杆菌",
+        "type": "治疗"
+      },
+      {
+        "source": "阿斯利康公司",
+        "target": "奥美拉唑",
+        "type": "研发"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "胃溃疡",
+        "type": "治疗"
+      }
+    ]
+  },
+  {
+    "chunk_index": 24,
+    "source": "paracetamol.txt",
+    "entities": [
+      {
+        "name": "对乙酰氨基酚",
+        "type": "药物"
+      },
+      {
+        "name": "扑热息痛",
+        "type": "概念"
+      },
+      {
+        "name": "解热镇痛药",
+        "type": "概念"
+      },
+      {
+        "name": "环氧合酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "中枢神经系统",
+        "type": "概念"
+      },
+      {
+        "name": "前列腺素",
+        "type": "概念"
+      },
+      {
+        "name": "头痛",
+        "type": "症状"
+      },
+      {
+        "name": "牙痛",
+        "type": "症状"
+      },
+      {
+        "name": "肌肉疼痛",
+        "type": "症状"
+      },
+      {
+        "name": "痛经",
+        "type": "症状"
+      },
+      {
+        "name": "关节疼痛",
+        "type": "症状"
+      },
+      {
+        "name": "发热",
+        "type": "症状"
+      },
+      {
+        "name": "咽痛",
+        "type": "症状"
+      },
+      {
+        "name": "肝损伤",
+        "type": "副作用"
+      },
+      {
+        "name": "肝坏死",
+        "type": "副作用"
+      },
+      {
+        "name": "恶心",
+        "type": "副作用"
+      },
+      {
+        "name": "皮疹",
+        "type": "副作用"
+      },
+      {
+        "name": "血小板减少",
+        "type": "副作用"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "对乙酰氨基酚",
+        "target": "环氧合酶",
+        "type": "作用于"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "头痛",
+        "type": "缓解"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "牙痛",
+        "type": "缓解"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "肌肉疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "痛经",
+        "type": "缓解"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "关节疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "发热",
+        "type": "缓解"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "咽痛",
+        "type": "缓解"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "肝损伤",
+        "type": "副作用"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "肝坏死",
+        "type": "副作用"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "恶心",
+        "type": "副作用"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "皮疹",
+        "type": "副作用"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "血小板减少",
+        "type": "副作用"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "中枢神经系统",
+        "type": "作用于"
+      },
+      {
+        "source": "对乙酰氨基酚",
+        "target": "解热镇痛药",
+        "type": "属于"
+      }
+    ]
+  },
+  {
+    "chunk_index": 25,
+    "source": "peptic_ulcer.txt",
+    "entities": [
+      {
+        "name": "消化性溃疡",
+        "type": "疾病"
+      },
+      {
+        "name": "胃溃疡",
+        "type": "疾病"
+      },
+      {
+        "name": "十二指肠溃疡",
+        "type": "疾病"
+      },
+      {
+        "name": "胃酸",
+        "type": "概念"
+      },
+      {
+        "name": "幽门螺杆菌",
+        "type": "概念"
+      },
+      {
+        "name": "非甾体抗炎药",
+        "type": "概念"
+      },
+      {
+        "name": "上腹疼痛",
+        "type": "症状"
+      },
+      {
+        "name": "烧心",
+        "type": "症状"
+      },
+      {
+        "name": "反酸",
+        "type": "症状"
+      },
+      {
+        "name": "恶心",
+        "type": "症状"
+      },
+      {
+        "name": "腹胀",
+        "type": "症状"
+      },
+      {
+        "name": "奥美拉唑",
+        "type": "药物"
+      },
+      {
+        "name": "法莫替丁",
+        "type": "药物"
+      },
+      {
+        "name": "阿莫西林",
+        "type": "药物"
+      },
+      {
+        "name": "克拉霉素",
+        "type": "药物"
+      },
+      {
+        "name": "氢钾ATP酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "组胺H2受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "阿司匹林",
+        "type": "药物"
+      },
+      {
+        "name": "溃疡出血",
+        "type": "副作用"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "奥美拉唑",
+        "target": "氢钾ATP酶",
+        "type": "作用于"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "组胺H2受体",
+        "type": "作用于"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "胃溃疡",
+        "type": "治疗"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "十二指肠溃疡",
+        "type": "治疗"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "胃溃疡",
+        "type": "治疗"
+      },
+      {
+        "source": "法莫替丁",
+        "target": "十二指肠溃疡",
+        "type": "治疗"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "上腹疼痛",
+        "type": "缓解"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "烧心",
+        "type": "缓解"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "反酸",
+        "type": "缓解"
+      },
+      {
+        "source": "奥美拉唑",
+        "target": "幽门螺杆菌",
+        "type": "治疗"
+      },
+      {
+        "source": "阿莫西林",
+        "target": "幽门螺杆菌",
+        "type": "治疗"
+      },
+      {
+        "source": "克拉霉素",
+        "target": "幽门螺杆菌",
+        "type": "治疗"
+      },
+      {
+        "source": "胃酸",
+        "target": "消化性溃疡",
+        "type": "作用于"
+      },
+      {
+        "source": "幽门螺杆菌",
+        "target": "消化性溃疡",
+        "type": "作用于"
+      },
+      {
+        "source": "非甾体抗炎药",
+        "target": "消化性溃疡",
+        "type": "作用于"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "溃疡出血",
+        "type": "副作用"
+      },
+      {
+        "source": "阿司匹林",
+        "target": "消化性溃疡",
+        "type": "副作用"
+      }
+    ]
+  },
+  {
+    "chunk_index": 26,
+    "source": "rosuvastatin.txt",
+    "entities": [
+      {
+        "name": "瑞舒伐他汀",
+        "type": "药物"
+      },
+      {
+        "name": "他汀类",
+        "type": "概念"
+      },
+      {
+        "name": "羟甲基戊二酰辅酶A还原酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "低密度脂蛋白胆固醇",
+        "type": "概念"
+      },
+      {
+        "name": "低密度脂蛋白受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "高胆固醇血症",
+        "type": "疾病"
+      },
+      {
+        "name": "混合型高脂血症",
+        "type": "疾病"
+      },
+      {
+        "name": "动脉粥样硬化性心血管疾病",
+        "type": "疾病"
+      },
+      {
+        "name": "肌肉疼痛",
+        "type": "副作用"
+      },
+      {
+        "name": "肝酶升高",
+        "type": "副作用"
+      },
+      {
+        "name": "头痛",
+        "type": "副作用"
+      },
+      {
+        "name": "肌病",
+        "type": "副作用"
+      },
+      {
+        "name": "阿斯利康公司",
+        "type": "公司"
+      },
+      {
+        "name": "阿托伐他汀",
+        "type": "药物"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "瑞舒伐他汀",
+        "target": "羟甲基戊二酰辅酶A还原酶",
+        "type": "作用于"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "低密度脂蛋白胆固醇",
+        "type": "作用于"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "高胆固醇血症",
+        "type": "治疗"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "混合型高脂血症",
+        "type": "治疗"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "动脉粥样硬化性心血管疾病",
+        "type": "治疗"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "肌肉疼痛",
+        "type": "副作用"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "肝酶升高",
+        "type": "副作用"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "头痛",
+        "type": "副作用"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "肌病",
+        "type": "副作用"
+      },
+      {
+        "source": "瑞舒伐他汀",
+        "target": "他汀类",
+        "type": "属于"
+      },
+      {
+        "source": "阿斯利康公司",
+        "target": "瑞舒伐他汀",
+        "type": "研发"
+      },
+      {
+        "source": "阿托伐他汀",
+        "target": "高脂血症",
+        "type": "治疗"
+      }
+    ]
+  },
+  {
+    "chunk_index": 27,
+    "source": "salbutamol.txt",
+    "entities": [
+      {
+        "name": "沙丁胺醇",
+        "type": "药物"
+      },
+      {
+        "name": "β2肾上腺素受体激动剂",
+        "type": "概念"
+      },
+      {
+        "name": "β2受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "环磷酸腺苷",
+        "type": "概念"
+      },
+      {
+        "name": "支气管平滑肌",
+        "type": "概念"
+      },
+      {
+        "name": "哮喘",
+        "type": "疾病"
+      },
+      {
+        "name": "慢性阻塞性肺疾病",
+        "type": "疾病"
+      },
+      {
+        "name": "支气管痉挛",
+        "type": "症状"
+      },
+      {
+        "name": "喘息",
+        "type": "症状"
+      },
+      {
+        "name": "气促",
+        "type": "症状"
+      },
+      {
+        "name": "胸闷",
+        "type": "症状"
+      },
+      {
+        "name": "咳嗽",
+        "type": "症状"
+      },
+      {
+        "name": "心悸",
+        "type": "副作用"
+      },
+      {
+        "name": "手颤",
+        "type": "副作用"
+      },
+      {
+        "name": "紧张不安",
+        "type": "副作用"
+      },
+      {
+        "name": "头痛",
+        "type": "副作用"
+      },
+      {
+        "name": "心动过速",
+        "type": "副作用"
+      },
+      {
+        "name": "吸入性糖皮质激素",
+        "type": "概念"
+      },
+      {
+        "name": "葛兰素史克公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "沙丁胺醇",
+        "target": "β2受体",
+        "type": "作用于"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "环磷酸腺苷",
+        "type": "作用于"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "支气管平滑肌",
+        "type": "作用于"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "哮喘",
+        "type": "治疗"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "慢性阻塞性肺疾病",
+        "type": "治疗"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "支气管痉挛",
+        "type": "缓解"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "喘息",
+        "type": "缓解"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "气促",
+        "type": "缓解"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "胸闷",
+        "type": "缓解"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "咳嗽",
+        "type": "缓解"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "心悸",
+        "type": "副作用"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "手颤",
+        "type": "副作用"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "紧张不安",
+        "type": "副作用"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "头痛",
+        "type": "副作用"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "心动过速",
+        "type": "副作用"
+      },
+      {
+        "source": "沙丁胺醇",
+        "target": "β2肾上腺素受体激动剂",
+        "type": "属于"
+      },
+      {
+        "source": "葛兰素史克公司",
+        "target": "沙丁胺醇",
+        "type": "研发"
+      }
+    ]
+  },
+  {
+    "chunk_index": 28,
+    "source": "sildenafil.txt",
+    "entities": [
+      {
+        "name": "西地那非",
+        "type": "药物"
+      },
+      {
+        "name": "磷酸二酯酶5抑制剂",
+        "type": "概念"
+      },
+      {
+        "name": "磷酸二酯酶5",
+        "type": "作用机制"
+      },
+      {
+        "name": "环磷酸鸟苷",
+        "type": "概念"
+      },
+      {
+        "name": "一氧化氮",
+        "type": "概念"
+      },
+      {
+        "name": "血管平滑肌",
+        "type": "概念"
+      },
+      {
+        "name": "勃起功能障碍",
+        "type": "疾病"
+      },
+      {
+        "name": "肺动脉高压",
+        "type": "疾病"
+      },
+      {
+        "name": "阴茎海绵体",
+        "type": "概念"
+      },
+      {
+        "name": "肺血管阻力",
+        "type": "概念"
+      },
+      {
+        "name": "低血压",
+        "type": "副作用"
+      },
+      {
+        "name": "头痛",
+        "type": "副作用"
+      },
+      {
+        "name": "面部潮红",
+        "type": "副作用"
+      },
+      {
+        "name": "消化不良",
+        "type": "副作用"
+      },
+      {
+        "name": "鼻塞",
+        "type": "副作用"
+      },
+      {
+        "name": "视觉异常",
+        "type": "副作用"
+      },
+      {
+        "name": "硝酸酯类",
+        "type": "概念"
+      },
+      {
+        "name": "辉瑞公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "西地那非",
+        "target": "磷酸二酯酶5",
+        "type": "作用于"
+      },
+      {
+        "source": "西地那非",
+        "target": "环磷酸鸟苷",
+        "type": "作用于"
+      },
+      {
+        "source": "西地那非",
+        "target": "勃起功能障碍",
+        "type": "治疗"
+      },
+      {
+        "source": "西地那非",
+        "target": "肺动脉高压",
+        "type": "治疗"
+      },
+      {
+        "source": "西地那非",
+        "target": "阴茎海绵体",
+        "type": "作用于"
+      },
+      {
+        "source": "西地那非",
+        "target": "肺血管阻力",
+        "type": "作用于"
+      },
+      {
+        "source": "西地那非",
+        "target": "低血压",
+        "type": "副作用"
+      },
+      {
+        "source": "西地那非",
+        "target": "头痛",
+        "type": "副作用"
+      },
+      {
+        "source": "西地那非",
+        "target": "面部潮红",
+        "type": "副作用"
+      },
+      {
+        "source": "西地那非",
+        "target": "消化不良",
+        "type": "副作用"
+      },
+      {
+        "source": "西地那非",
+        "target": "鼻塞",
+        "type": "副作用"
+      },
+      {
+        "source": "西地那非",
+        "target": "视觉异常",
+        "type": "副作用"
+      },
+      {
+        "source": "西地那非",
+        "target": "磷酸二酯酶5抑制剂",
+        "type": "属于"
+      },
+      {
+        "source": "辉瑞公司",
+        "target": "西地那非",
+        "type": "研发"
+      },
+      {
+        "source": "一氧化氮",
+        "target": "血管平滑肌",
+        "type": "作用于"
+      },
+      {
+        "source": "硝酸酯类",
+        "target": "低血压",
+        "type": "作用于"
+      }
+    ]
+  },
+  {
+    "chunk_index": 29,
+    "source": "type2_diabetes.txt",
+    "entities": [
+      {
+        "name": "2型糖尿病",
+        "type": "疾病"
+      },
+      {
+        "name": "胰岛素抵抗",
+        "type": "概念"
+      },
+      {
+        "name": "胰岛β细胞",
+        "type": "概念"
+      },
+      {
+        "name": "血糖",
+        "type": "概念"
+      },
+      {
+        "name": "多饮",
+        "type": "症状"
+      },
+      {
+        "name": "多尿",
+        "type": "症状"
+      },
+      {
+        "name": "多食",
+        "type": "症状"
+      },
+      {
+        "name": "体重下降",
+        "type": "症状"
+      },
+      {
+        "name": "乏力",
+        "type": "症状"
+      },
+      {
+        "name": "二甲双胍",
+        "type": "药物"
+      },
+      {
+        "name": "磺脲类",
+        "type": "概念"
+      },
+      {
+        "name": "格列本脲",
+        "type": "药物"
+      },
+      {
+        "name": "胰岛素",
+        "type": "药物"
+      },
+      {
+        "name": "一磷酸腺苷活化蛋白激酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "糖尿病肾病",
+        "type": "疾病"
+      },
+      {
+        "name": "视网膜病变",
+        "type": "疾病"
+      },
+      {
+        "name": "糖尿病足",
+        "type": "疾病"
+      },
+      {
+        "name": "心血管疾病",
+        "type": "疾病"
+      },
+      {
+        "name": "高血压",
+        "type": "疾病"
+      },
+      {
+        "name": "高脂血症",
+        "type": "疾病"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "二甲双胍",
+        "target": "一磷酸腺苷活化蛋白激酶",
+        "type": "作用于"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "2型糖尿病",
+        "type": "治疗"
+      },
+      {
+        "source": "格列本脲",
+        "target": "2型糖尿病",
+        "type": "治疗"
+      },
+      {
+        "source": "胰岛素",
+        "target": "2型糖尿病",
+        "type": "治疗"
+      },
+      {
+        "source": "磺脲类",
+        "target": "格列本脲",
+        "type": "属于"
+      },
+      {
+        "source": "二甲双胍",
+        "target": "胰岛素敏感性",
+        "type": "作用于"
+      },
+      {
+        "source": "2型糖尿病",
+        "target": "多饮",
+        "type": "属于"
+      },
+      {
+        "source": "2型糖尿病",
+        "target": "多尿",
+        "type": "属于"
+      },
+      {
+        "source": "2型糖尿病",
+        "target": "多食",
+        "type": "属于"
+      },
+      {
+        "source": "2型糖尿病",
+        "target": "体重下降",
+        "type": "属于"
+      },
+      {
+        "source": "2型糖尿病",
+        "target": "乏力",
+        "type": "属于"
+      },
+      {
+        "source": "2型糖尿病",
+        "target": "糖尿病肾病",
+        "type": "属于"
+      },
+      {
+        "source": "2型糖尿病",
+        "target": "视网膜病变",
+        "type": "属于"
+      },
+      {
+        "source": "2型糖尿病",
+        "target": "糖尿病足",
+        "type": "属于"
+      },
+      {
+        "source": "2型糖尿病",
+        "target": "心血管疾病",
+        "type": "属于"
+      },
+      {
+        "source": "高血压",
+        "target": "2型糖尿病",
+        "type": "属于"
+      },
+      {
+        "source": "高脂血症",
+        "target": "2型糖尿病",
+        "type": "属于"
+      },
+      {
+        "source": "2型糖尿病",
+        "target": "胰岛素抵抗",
+        "type": "作用于"
+      }
+    ]
+  },
+  {
+    "chunk_index": 30,
+    "source": "valsartan.txt",
+    "entities": [
+      {
+        "name": "缬沙坦",
+        "type": "药物"
+      },
+      {
+        "name": "血管紧张素II受体拮抗剂",
+        "type": "概念"
+      },
+      {
+        "name": "沙坦类",
+        "type": "概念"
+      },
+      {
+        "name": "血管紧张素II受体",
+        "type": "作用机制"
+      },
+      {
+        "name": "血管紧张素II",
+        "type": "概念"
+      },
+      {
+        "name": "醛固酮",
+        "type": "概念"
+      },
+      {
+        "name": "高血压",
+        "type": "疾病"
+      },
+      {
+        "name": "心力衰竭",
+        "type": "疾病"
+      },
+      {
+        "name": "心肌梗死",
+        "type": "疾病"
+      },
+      {
+        "name": "糖尿病肾病",
+        "type": "疾病"
+      },
+      {
+        "name": "头晕",
+        "type": "副作用"
+      },
+      {
+        "name": "乏力",
+        "type": "副作用"
+      },
+      {
+        "name": "高钾血症",
+        "type": "副作用"
+      },
+      {
+        "name": "血管性水肿",
+        "type": "副作用"
+      },
+      {
+        "name": "诺华公司",
+        "type": "公司"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "缬沙坦",
+        "target": "血管紧张素II受体",
+        "type": "作用于"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "高血压",
+        "type": "治疗"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "心力衰竭",
+        "type": "治疗"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "心肌梗死",
+        "type": "治疗"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "糖尿病肾病",
+        "type": "治疗"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "头晕",
+        "type": "副作用"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "乏力",
+        "type": "副作用"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "高钾血症",
+        "type": "副作用"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "血管性水肿",
+        "type": "副作用"
+      },
+      {
+        "source": "缬沙坦",
+        "target": "血管紧张素II受体拮抗剂",
+        "type": "属于"
+      },
+      {
+        "source": "诺华公司",
+        "target": "缬沙坦",
+        "type": "研发"
+      },
+      {
+        "source": "血管紧张素II",
+        "target": "血管紧张素II受体",
+        "type": "作用于"
+      },
+      {
+        "source": "血管紧张素II",
+        "target": "醛固酮",
+        "type": "作用于"
+      }
+    ]
+  },
+  {
+    "chunk_index": 31,
+    "source": "warfarin.txt",
+    "entities": [
+      {
+        "name": "华法林",
+        "type": "药物"
+      },
+      {
+        "name": "香豆素类",
+        "type": "概念"
+      },
+      {
+        "name": "维生素K环氧化物还原酶",
+        "type": "作用机制"
+      },
+      {
+        "name": "凝血因子II",
+        "type": "概念"
+      },
+      {
+        "name": "凝血因子VII",
+        "type": "概念"
+      },
+      {
+        "name": "凝血因子IX",
+        "type": "概念"
+      },
+      {
+        "name": "凝血因子X",
+        "type": "概念"
+      },
+      {
+        "name": "深静脉血栓",
+        "type": "疾病"
+      },
+      {
+        "name": "肺栓塞",
+        "type": "疾病"
+      },
+      {
+        "name": "心房颤动",
+        "type": "疾病"
+      },
+      {
+        "name": "脑卒中",
+        "type": "疾病"
+      },
+      {
+        "name": "出血",
+        "type": "副作用"
+      },
+      {
+        "name": "鼻出血",
+        "type": "副作用"
+      },
+      {
+        "name": "牙龈出血",
+        "type": "副作用"
+      },
+      {
+        "name": "颅内出血",
+        "type": "副作用"
+      },
+      {
+        "name": "凝血指标",
+        "type": "概念"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "华法林",
+        "target": "维生素K环氧化物还原酶",
+        "type": "作用于"
+      },
+      {
+        "source": "华法林",
+        "target": "深静脉血栓",
+        "type": "治疗"
+      },
+      {
+        "source": "华法林",
+        "target": "肺栓塞",
+        "type": "治疗"
+      },
+      {
+        "source": "华法林",
+        "target": "心房颤动",
+        "type": "治疗"
+      },
+      {
+        "source": "华法林",
+        "target": "脑卒中",
+        "type": "治疗"
+      },
+      {
+        "source": "华法林",
+        "target": "出血",
+        "type": "副作用"
+      },
+      {
+        "source": "华法林",
+        "target": "鼻出血",
+        "type": "副作用"
+      },
+      {
+        "source": "华法林",
+        "target": "牙龈出血",
+        "type": "副作用"
+      },
+      {
+        "source": "华法林",
+        "target": "颅内出血",
+        "type": "副作用"
+      },
+      {
+        "source": "华法林",
+        "target": "凝血因子II",
+        "type": "作用于"
+      },
+      {
+        "source": "华法林",
+        "target": "凝血因子VII",
+        "type": "作用于"
+      },
+      {
+        "source": "华法林",
+        "target": "凝血因子IX",
+        "type": "作用于"
+      },
+      {
+        "source": "华法林",
+        "target": "凝血因子X",
+        "type": "作用于"
+      },
+      {
+        "source": "华法林",
+        "target": "香豆素类",
+        "type": "属于"
+      },
+      {
+        "source": "华法林",
+        "target": "凝血指标",
+        "type": "作用于"
+      }
+    ]
+  }
+]

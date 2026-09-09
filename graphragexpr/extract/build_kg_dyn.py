@@ -65,53 +65,21 @@ MEDICAL_EXTRACT_PROMPT = """你是一个医药知识图谱抽取专家。请从�
 """
 
 
-def _safe_json_loads(raw):
-    """容错解析 LLM 返回的 JSON：
-    1. 剥掉 ```json / ``` 代码块标记（若有）
-    2. 只取第一个 '{' 到最后一个 '}' 之间的内容（去掉前后杂散文字）
-    3. 去除尾随逗号（JSON 不允许 ,} / ,]）
-    """
-    if "```" in raw:
-        parts = raw.split("```")
-        for p in parts:
-            p = p.strip()
-            if p.startswith("json"):
-                p = p[4:].strip()
-            if p.startswith("{") and p.endswith("}"):
-                raw = p
-                break
-    start = raw.find("{")
-    end = raw.rfind("}")
-    if start == -1 or end == -1 or end <= start:
-        raise ValueError("LLM 返回内容中未找到完整 JSON 对象")
-    raw = raw[start:end + 1]
-    import re
-    raw = re.sub(r",\s*}", "}", raw)
-    raw = re.sub(r",\s*\]", "]", raw)
-    return json.loads(raw)
-
-
-def extract_via_llm(text, client, max_retries=2):
-    """调用 DeepSeek 抽取实体/关系，返回 (entities, relationships)。
-    带容错解析 + 重试：JSON 解析失败或调用异常时自动重试，最多 max_retries 次。
-    """
+def extract_via_llm(text, client):
+    """调用 DeepSeek 抽取实体/关系，返回 (entities, relationships)。"""
     prompt = MEDICAL_EXTRACT_PROMPT.format(text=text)
-    last_err = None
-    for attempt in range(max_retries + 1):
-        try:
-            resp = client.chat.completions.create(
-                model=os.getenv("LLM_MODEL", "deepseek-chat"),
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0,
-            )
-            raw = resp.choices[0].message.content.strip()
-            data = _safe_json_loads(raw)
-            return data.get("entities", []), data.get("relationships", [])
-        except Exception as e:
-            last_err = e
-            if attempt < max_retries:
-                print(f"    \u26a0 \u7b2c {attempt + 1} \u6b21\u5931\u8d25({e})\uff0c\u91cd\u8bd5...")
-    raise last_err
+    resp = client.chat.completions.create(
+        model=os.getenv("LLM_MODEL", "deepseek-chat"),
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0,
+    )
+    raw = resp.choices[0].message.content.strip()
+    if "```json" in raw:
+        raw = raw.split("```json")[1].split("```")[0].strip()
+    elif "```" in raw:
+        raw = raw.split("```")[1].split("```")[0].strip()
+    data = json.loads(raw)
+    return data.get("entities", []), data.get("relationships", [])
 
 
 def load_or_build_extraction(client=None):
