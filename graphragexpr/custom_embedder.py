@@ -55,18 +55,33 @@ class SimpleHashEmbedder:
 class CustomEmbedder:
     """自定义 Embedder，优先使用外部 API，失败时降级为哈希"""
 
-    def __init__(self, external, dimension: int = 1536):
+    def __init__(self, external, dimension: int = 1536, external_kwargs: dict | None = None):
         self.external = external
         self.dimension = dimension
+        self.external_kwargs = external_kwargs or {}
         self._hash = SimpleHashEmbedder(dimension=dimension)
 
     def embed_query(self, text: str) -> List[float]:
-        """对单个文本进行 embedding"""
+        """对单个文本进行 embedding：优先外部 API（带 dimensions 参数），失败回退不带参数重试，再失败降级哈希"""
+        # 依次尝试：带外部参数 → 不带参数 → 哈希
+        for kwargs in (self.external_kwargs, None):
+            try:
+                if kwargs:
+                    result = self.external.embed_query(text, **kwargs)
+                else:
+                    result = self.external.embed_query(text)
+                if len(result) != self.dimension:
+                    # 如果维度不匹配，截断或填充
+                    result = self._fix_dimension(result)
+                return result
+            except Exception:
+                if kwargs is None:
+                    break
+                # 带参数失败（如服务不支持 dimensions），回退不带参数重试
+                continue
         try:
-            # 尝试调用外部 API
             result = self.external.embed_query(text)
             if len(result) != self.dimension:
-                # 如果维度不匹配，截断或填充
                 result = self._fix_dimension(result)
             return result
         except Exception as e:
@@ -88,17 +103,20 @@ class CustomEmbedder:
 
 def build_embedder(dimension: int = 1536):
     """工厂：EMBED_ENDPOINT/EMBED_MODEL/EMBED_TOKEN 三项都配置 → 用外部 embedding；
-    否则直接用 SimpleHashEmbedder（避免指向错误端点的 404 噪音）。"""
+    否则直接用 SimpleHashEmbedder（避免指向错误端点的 404 噪音）。
+    EMBED_DIMENSION 可覆盖向量维度（默认 1536，需与 Neo4j 索引一致）。"""
     import os
     endpoint = os.getenv("EMBED_ENDPOINT")
     model = os.getenv("EMBED_MODEL")
     token = os.getenv("EMBED_TOKEN")
+    dim = int(os.getenv("EMBED_DIMENSION", dimension))
     if endpoint and model and token:
         from neo4j_graphrag.embeddings import OpenAIEmbeddings
-        print(f"✓ 使用外部 Embedding: {model}")
+        print(f"✓ 使用外部 Embedding: {model}（{dim} 维）")
         return CustomEmbedder(
             external=OpenAIEmbeddings(model=model, base_url=endpoint, api_key=token),
-            dimension=dimension,
+            dimension=dim,
+            external_kwargs={"dimensions": dim},
         )
-    print("⚠ 未配置 EMBED_*，使用本地哈希 Embedder（1536 维）")
-    return SimpleHashEmbedder(dimension=dimension)
+    print(f"⚠ 未配置 EMBED_*，使用本地哈希 Embedder（{dim} 维）")
+    return SimpleHashEmbedder(dimension=dim)

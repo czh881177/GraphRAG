@@ -42,10 +42,18 @@ class ExternalEmbedder(Embedder):
         """Generate embedding using external API or fallback"""
         if self.use_external:
             try:
-                response = self.client.embeddings.create(
-                    model=self.model,
-                    input=text
-                )
+                # 优先带 dimensions 参数（智谱/阿里等支持）；不支持的服务自动回退不带参数
+                try:
+                    response = self.client.embeddings.create(
+                        model=self.model,
+                        input=text,
+                        dimensions=self.dimension
+                    )
+                except Exception:
+                    response = self.client.embeddings.create(
+                        model=self.model,
+                        input=text
+                    )
                 embedding = response.data[0].embedding
 
                 # Verify dimension
