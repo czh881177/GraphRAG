@@ -33,8 +33,6 @@ def generate_standalone_visualization(output_path="graphragexpr/vis/output/graph
 
     query = """
     MATCH (n)-[r]->(m)
-    WHERE NOT n:Chunk AND NOT n:Document
-      AND NOT m:Chunk AND NOT m:Document
     RETURN elementId(n) AS source_id, labels(n)[0] AS source_label,
            coalesce(n.name, 'unknown') AS source_name,
            type(r) AS rel_type,

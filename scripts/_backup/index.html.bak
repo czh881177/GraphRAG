@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>医药GraphRAG问答系统</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif}
+body{background:#f5f7fa;color:#33;height:100vh;display:flex;flex-direction:column}
+.header{height:56px;background:linear-gradient(90deg,#1e3a8a,#2563eb);color:#fff;display:flex;align-items:center;padding:0 20px}
+.header h1{font-size:18px;font-weight:600}
+.header .tag{margin-left:12px;padding:3px 8px;background:rgba(255,255,255,.2);border-radius:10px;font-size:11px}
+.main{flex:1;display:flex;overflow:hidden}
+.left-panel{width:42%;border-right:1px solid #e2e8f0;background:#fff;display:flex;flex-direction:column}
+.input-area{padding:14px 18px;border-bottom:1px solid #e2e8f0}
+textarea{width:100%;height:68px;padding:10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;outline:none;resize:none}
+textarea:focus{border-color:#2563eb}
+.input-row{margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{padding:6px 16px;border:none;border-radius:5px;cursor:pointer;font-size:12px}
+.btn-primary{background:#2563eb;color:#fff}
+.btn-primary:hover{opacity:.9}
+.btn-secondary{background:#f1f5f9;color:#475569}
+.btn-secondary:hover{background:#e2e8f0}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+select{padding:5px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:11px;outline:none;background:#fff}
+label{font-size:11px;color:#475569;display:flex;align-items:center;gap:3px;cursor:pointer}
+.type-tip{font-size:11px;color:#64748b;margin-top:5px;display:none}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;background:#dbeafe;color:#1e40af;margin-right:5px}
+.badge.multi{background:#fef3c7;color:#92400e}
+.badge.reverse{background:#ede9fe;color:#6d28d9}
+.badge.compare{background:#dcfce7;color:#166534}
+.test-panel{padding:10px 18px;background:#f8fafc;border-bottom:1px solid #e2e8f0}
+.test-title{font-size:11px;color:#64748b;margin-bottom:6px}
+.test-group{margin-bottom:6px}
+.test-group-label{font-size:10px;color:#94a3b8;margin-bottom:3px}
+.test-btns{display:flex;flex-wrap:wrap;gap:4px}
+.test-btn{padding:2px 7px;font-size:10px;background:#fff;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;color:#334155}
+.test-btn:hover{background:#2563eb;color:#fff;border-color:#2563eb}
+.answer-area{flex:1;overflow-y:auto;padding:18px}
+.section-title{font-size:14px;font-weight:600;margin-bottom:8px;color:#1e293b;display:flex;align-items:center}
+.section-title::before{content:"";width:3px;height:12px;background:#2563eb;margin-right:7px;border-radius:2px}
+.answer-content{line-height:1.7;font-size:13px;color:#334155;margin-bottom:16px;padding:10px 12px;background:#f8fafc;border-radius:6px;border-left:3px solid #2563eb;white-space:pre-wrap}
+.tip-box{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;padding:7px 10px;border-radius:5px;font-size:11px;margin-bottom:10px;line-height:1.5}
+.warn-box{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:7px 10px;border-radius:5px;font-size:11px;margin-bottom:10px;line-height:1.5}
+.entity-list{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.entity-tag{padding:3px 8px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;border-radius:10px;font-size:11px}
+.evidence-card{padding:8px 10px;border:1px solid #e2e8f0;border-radius:6px;margin-bottom:6px;font-size:12px;line-height:1.5;color:#64748b;background:#fafafa}
+.evidence-card .source{font-size:10px;color:#94a3b8;margin-top:3px}
+.compare-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px}
+.compare-table th,.compare-table td{border:1px solid #e2e8f0;padding:8px 10px;vertical-align:top;line-height:1.5}
+.compare-table th{background:#f1f5f9;font-weight:600;text-align:left;color:#1e293b}
+.compare-table td:first-child{width:50%;background:#f8fafc}
+.compare-table .missing{color:#94a3b8;font-style:italic}
+.right-panel{flex:1;display:flex;flex-direction:column;background:#fff}
+.graph-header{padding:12px 18px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+.graph-header .tip{font-size:11px;color:#94a3b8}
+.graph-frame{flex:1;border:none;width:100%;height:100%}
+.loading{text-align:center;padding:35px 15px;color:#94a3b8;font-size:13px;line-height:1.7}
+.error{color:#dc2626;padding:10px;background:#fef2f2;border-radius:5px;font-size:12px;line-height:1.5}
+.meta-info{font-size:11px;color:#64748b;margin-top:6px;padding:6px 8px;background:#f1f5f9;border-radius:4px}
+ul.answer-list{padding-left:20px;margin:0}
+ul.answer-list li{margin-bottom:4px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="header">
+    <h1>医药知识图谱增强问答系统</h1>
+    <span class="tag">GraphRAG + Neo4j + DeepSeek</span>
+</div>
+<div class="main">
+    <div class="left-panel">
+        <div class="input-area">
+            <textarea id="q" placeholder="请输入问题，例如：拜耳研发的药物有哪些副作用？"></textarea>
+            <div class="input-row">
+                <select id="method">
+                    <option value="vector_cypher">向量+图谱</option>
+                    <option value="vector">纯向量</option>
+                    <option value="hybrid">混合检索</option>
+                    <option value="hybrid_cypher" selected>混合图谱(推荐)</option>
+                </select>
+                <label><input type="checkbox" id="autoOpt" checked>智能优化</label>
+                <label><input type="checkbox" id="autoSplit" checked>对比拆分</label>
+                <button class="btn btn-primary" id="askBtn" onclick="ask()">提问</button>
+                <button class="btn btn-secondary" onclick="clearAll()">清空</button>
+            </div>
+            <div class="type-tip" id="typeTip"></div>
+        </div>
+        <div class="test-panel">
+            <div class="test-title">📋 标准测试集</div>
+            <div class="test-group">
+                <div class="test-group-label">单跳</div>
+                <div class="test-btns">
+                    <button class="test-btn" onclick="q('阿司匹林的作用机制是什么？')">Q1机制</button>
+                    <button class="test-btn" onclick="q('哪些药物通过抑制环氧合酶发挥作用？')">Q2药物</button>
+                    <button class="test-btn" onclick="q('布洛芬有哪些副作用？')">Q3副作用</button>
+                    <button class="test-btn" onclick="q('拜耳研发了哪些药物？')">Q4药物</button>
+                </div>
+            </div>
+            <div class="test-group">
+                <div class="test-group-label">多跳</div>
+                <div class="test-btns">
+                    <button class="test-btn" onclick="q('服用阿司匹林会引发什么症状？')">Q5症状</button>
+                    <button class="test-btn" onclick="q('拜耳研发的药物有哪些副作用？')">Q6副作用</button>
+                </div>
+            </div>
+            <div class="test-group">
+                <div class="test-group-label">反向&跨实体</div>
+                <div class="test-btns">
+                    <button class="test-btn" onclick="q('环氧合酶与哪些药物有关？')">Q7反向</button>
+                    <button class="test-btn" onclick="q('哪些药物可以治疗头痛？')">Q9治疗</button>
+                    <button class="test-btn" onclick="q('长期服用布洛芬有什么风险？')">Q10风险</button>
+                </div>
+            </div>
+            <div class="test-group">
+                <div class="test-group-label">比较</div>
+                <div class="test-btns">
+                    <button class="test-btn" onclick="q('对乙酰氨基酚的作用机制与布洛芬有什么不同？')">Q8对比</button>
+                </div>
+            </div>
+        </div>
+        <div class="answer-area" id="answer">
+            <div class="loading">输入问题后点击「提问」<br>系统将基于知识图谱生成答案并标注证据</div>
+        </div>
+    </div>
+    <div class="right-panel">
+        <div class="graph-header">
+            <div class="section-title" style="margin:0">知识图谱</div>
+            <span class="tip">滚轮缩放 · 拖拽移动 · 点击查看</span>
+        </div>
+        <iframe class="graph-frame" id="graph" src="graphragexpr/vis/output/graph.html"></iframe>
+    </div>
+</div>
+<script>
+const API = "http://localhost:5000/api/graphrag";
+
+// ========== 实体库与别名 ==========
+const ENTITIES = [
+    "硝苯地平","氨氯地平","瑞舒伐他汀","阿托伐他汀","布洛芬","对乙酰氨基酚","阿司匹林","吲哚美辛",
+    "高血压","高血脂","糖尿病","心绞痛","心肌梗死","脑梗死","头痛","水肿","耳鸣","消化不良","便秘","过敏反应",
+    "拜耳","葛兰素史克","默沙东","辉瑞","诺华",
+    "环氧合酶","COX","HMG-CoA还原酶","钙离子通道",
+    "二甲双胍","格列本脲","胰岛素","西地那非","氯沙坦","依那普利","奥美拉唑","法莫替丁"
+];
+const ALIAS = {
+    "拜耳公司":"拜耳","拜耳医药":"拜耳","拜耳集团":"拜耳",
+    "葛兰素史克公司":"葛兰素史克","葛兰素史克制药":"葛兰素史克","GSK":"葛兰素史克",
+    "默沙东公司":"默沙东","默克":"默沙东","MSD":"默沙东",
+    "阿司匹林肠溶片":"阿司匹林","拜阿司匹灵":"阿司匹林","乙酰水杨酸":"阿司匹林",
+    "布洛芬缓释胶囊":"布洛芬","芬必得":"布洛芬","布洛芬片":"布洛芬",
+    "扑热息痛":"对乙酰氨基酚","泰诺":"对乙酰氨基酚",
+    "环氧化酶":"环氧合酶","COX酶":"环氧合酶","cox":"环氧合酶","COX":"环氧合酶",
+    "高血压病":"高血压","血压高":"高血压","高脂血症":"高血脂","头疼":"头痛","浮肿":"水肿"
+};
+
+// 实体归一化
+function norm(s){for(let k in ALIAS)s=s.replaceAll(k,ALIAS[k]);return s}
+// 提取核心实体
+function getEntities(s){return ENTITIES.filter(e=>s.includes(e))}
+
+// ========== 问题分类 ==========
+function classify(q){
+    if(/(.+?)的(.+?)[和与](.+?)(?:的.*?)?(有什么|有哪些)?(不同|区别|差异|异同)/.test(q)||/(.+?)[和与](.+?)的(区别|不同|差异|异同)/.test(q))
+        return {type:'compare',label:'比较类问题'};
+    if(/(.+与哪些.+有关|.+和哪些.+相关|哪些.+会.+|哪些.+可以.+)/.test(q))
+        return {type:'reverse',label:'反向关系查询'};
+    if(/(.+研发的药物有哪些|.+的药物有哪些副作用|.+会引发什么症状|长期服用.+有什么风险)/.test(q))
+        return {type:'multi',label:'多跳推理问题'};
+    if(/(哪些药物可以治疗|哪些药物会引起|治疗.+的药物有哪些)/.test(q))
+        return {type:'cross',label:'跨实体查询'};
+    return {type:'single',label:'单跳事实查询'};
+}
+
+// ========== 自动选最优模式（核心优化）==========
+// 单跳/反向/跨实体 → vector_cypher：先精准定位实体节点，再沿关系遍历，避开全文噪声
+// 多跳/对比 → hybrid_cypher：兼顾文本召回和图谱遍历
+function autoMethod(type){
+    if(['single','reverse','cross'].includes(type)) return 'vector_cypher';
+    if(['multi','compare'].includes(type)) return 'hybrid_cypher';
+    return 'hybrid';
+}
+
+// ========== 优化Prompt（核心优化：强锚定实体）==========
+function optimize(q, info){
+    const entities = getEntities(q);
+    switch(info.type){
+        case 'single':
+            // 单跳：强锚定核心实体，强制只围绕该实体回答
+            return entities.length? 
+                `请仅围绕「${entities[0]}」这个实体回答：${q}。详细说明对应的作用靶点、机制通路、具体症状，分点清晰呈现，不要涉及其他无关药物`
+                : q+'，请详细说明对应的信息，分点清晰呈现';
+        case 'multi':
+            return entities.length? 
+                q+`。请以「${entities[0]}」为起点，完整遍历知识图谱关系链，分点列出全部结果，不要遗漏` 
+                : q+'，请遍历所有关系链，完整列出结果，分点说明';
+        case 'reverse':
+            return entities.length? 
+                q+`。请从「${entities[0]}」节点出发，反向遍历知识图谱中所有关联的药物实体，完整列出`
+                : q+'，请反向遍历所有关联实体，完整列出结果';
+        case 'cross':
+            return q+'，请遍历完整的关系路径，找出所有符合条件的实体，分点列出';
+    }
+    return q;
+}
+
+// ========== 对比问题解析 ==========
+function parseCompare(q){
+    let m = q.match(/(.+?)的(.+?)[和与](.+?)(?:的.*?)?(有什么|有哪些)?(不同|区别|差异|异同)/);
+    if(m) return {e1:m[1].trim(),e2:m[3].trim(),attr:m[2].trim()};
+    m = q.match(/(.+?)[和与](.+?)的(区别|不同|差异|异同)/);
+    if(m) return {e1:m[1].trim(),e2:m[2].trim(),attr:'相关信息'};
+    return null;
+}
+
+// ========== 工具函数 ==========
+async function api(q, method){
+    const res = await fetch(API, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({question:q, method:method})
+    });
+    if(!res.ok){const e=new Error('状态码：'+res.status);e.status=res.status;throw e}
+    return res.json();
+}
+
+function getText(data){
+    if(!data||!data.answer) return '';
+    return data.answer.replace(/根据提供的上下文[，,]?/g,'').replace(/上下文仅包含[^\n]*\n?/g,'').replace(/具体如下[:：]\n?/g,'').trim();
+}
+
+function getNodes(data){
+    if(data.graph_nodes&&Array.isArray(data.graph_nodes)) return data.graph_nodes;
+    if(data.nodes&&Array.isArray(data.nodes)) return data.nodes.map(n=>n.name||n.id||n);
+    return [];
+}
+
+// 判断是否真正空答案
+function isEmptyAnswer(text){
+    if(!text || text.trim() === '') return true;
+    const keys = ['无法回答','信息不足','未找到','没有找到','无法完整回答','未包含','未提及','暂无答案'];
+    return keys.some(k=>text.includes(k));
+}
+
+// 答案结构化
+function formatAnswer(text){
+    if(!text || text.trim() === '') return '';
+    if(/^\d\./m.test(text)) return text;
+    const lines = text.split('\n').map(l=>l.trim()).filter(l=>l);
+    if(lines.length <= 2) return text;
+    return '<ul class="answer-list">'+lines.map(l=>`<li>${l.replace(/^[-*•]\s*/,'')}</li>`).join('')+'</ul>';
+}
+
+// 重试模式顺序
+const RETRY_MODES = ['vector_cypher','hybrid_cypher','hybrid'];
+
+// ========== 快捷操作 ==========
+function q(text){document.getElementById('q').value=text;ask()}
+document.getElementById('q').addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter')ask()});
+
+// ========== 主提问函数 ==========
+async function ask(retryIndex=0){
+    const origin = document.getElementById('q').value.trim();
+    if(!origin) return;
+    const btn = document.getElementById('askBtn');
+    const box = document.getElementById('answer');
+    const tip = document.getElementById('typeTip');
+    const autoOpt = document.getElementById('autoOpt').checked;
+    const autoSplit = document.getElementById('autoSplit').checked;
+
+    btn.disabled = true;
+    btn.textContent = retryIndex>0?'重试中...':'生成中...';
+    if(retryIndex===0) box.innerHTML = '<div class="loading">正在检索知识图谱<br>并生成答案，请稍候...</div>';
+    tip.style.display = 'none';
+    resetHighlight();
+
+    try{
+        const nq = norm(origin);
+        const info = classify(nq);
+        let method = retryIndex>0 ? RETRY_MODES[retryIndex] : document.getElementById('method').value;
+        if(autoOpt && retryIndex===0) method = autoMethod(info.type);
+
+        // 显示类型标签
+        const cls = info.type==='multi'?'multi':info.type==='reverse'?'reverse':info.type==='compare'?'compare':'';
+        tip.innerHTML = `<span class="badge ${cls}">${info.label}</span>已匹配最优检索策略`;
+        tip.style.display = 'block';
+
+        // ========== 对比类问题：拆分并行 ==========
+        if(autoSplit && info.type==='compare'){
+            const c = parseCompare(nq);
+            if(c){
+                const q1 = optimize(`${c.e1}的${c.attr}是什么`,{type:'single'});
+                const q2 = optimize(`${c.e2}的${c.attr}是什么`,{type:'single'});
+                const [r1,r2] = await Promise.all([api(q1,method).catch(()=>null), api(q2,method).catch(()=>null)]);
+                const t1 = getText(r1), t2 = getText(r2);
+                const n1 = getNodes(r1||{}), n2 = getNodes(r2||{});
+                const e1 = getEntities(t1), e2 = getEntities(t2);
+                const all = [...new Set([...n1,...n2,...e1,...e2])];
+
+                let html = '<div class="section-title">回答</div>';
+                if(retryIndex>0) html += `<div class="meta-info">💡 已自动切换检索模式重试（第${retryIndex}次）</div>`;
+                html += `<div style="font-size:12px;color:#64748b;margin-bottom:6px">对比维度：${c.attr}</div>`;
+                html += '<table class="compare-table"><thead><tr>';
+                html += `<th>${c.e1}</th><th>${c.e2}</th>`;
+                html += '</tr></thead><tbody><tr>';
+                html += `<td>${t1? formatAnswer(t1) :'<span class="missing">暂未检索到</span>'}</td>`;
+                html += `<td>${t2? formatAnswer(t2) :'<span class="missing">暂未检索到</span>'}</td>`;
+                html += '</tr></tbody></table>';
+
+                const ev = [];
+                if(r1&&r1.evidence) ev.push(...r1.evidence);
+                if(r2&&r2.evidence) ev.push(...r2.evidence);
+                if(ev.length){
+                    html += '<div class="section-title">支撑证据</div>';
+                    ev.forEach((item,i)=>{
+                        const t = typeof item==='string'?item:(item.text||item.content||'');
+                        html += `<div class="evidence-card"><div>${t}</div><div class="source">证据 ${i+1}</div></div>`;
+                    });
+                }
+
+                if(all.length){
+                    html += `<div class="meta-info">📊 关联 <b>${all.length}</b> 个图谱实体，右侧已高亮</div>`;
+                    triggerHighlight(all);
+                }
+                box.innerHTML = html;
+                box.scrollTop = 0;
+                btn.disabled=false;
+                btn.textContent='提问';
+                return;
+            }
+        }
+
+        // ========== 普通问题 ==========
+        const finalQ = autoOpt? optimize(nq,info) : nq;
+        const data = await api(finalQ, method);
+        const answerText = getText(data);
+        const empty = isEmptyAnswer(answerText);
+
+        // 空答案自动降级重试
+        if(empty && retryIndex < RETRY_MODES.length-1){
+            return ask(retryIndex+1);
+        }
+
+        const graphNodes = getNodes(data);
+        const textNodes = getEntities(answerText);
+        const allNodes = [...new Set([...graphNodes,...textNodes])];
+
+        let html = '<div class="section-title">回答</div>';
+        if(retryIndex>0) html += `<div class="meta-info">💡 已自动切换检索模式重试（第${retryIndex}次）</div>`;
+
+        // ===== 治疗类问题特殊兜底（优化版）=====
+        const isTreatQuestion = /哪些药物可以治疗|治疗.+的药物有哪些/.test(nq);
+        const hasNoTreatAnswer = isEmptyAnswer(answerText) || answerText.includes('并非治疗') || answerText.includes('没有治疗关系');
+        
+        if (isTreatQuestion && hasNoTreatAnswer) {
+            const symptom = getEntities(nq)[0] || '该症状';
+            const symptomList = ["头痛","水肿","耳鸣","消化不良","便秘","过敏反应","高血压","高血脂","糖尿病","心绞痛","心肌梗死","脑梗死"];
+            const isSymptomEntity = symptomList.includes(symptom);
+
+            html += `<div class="tip-box">💡 当前图谱中「${symptom}」主要作为副作用实体建模，暂无明确的“治疗”关系。以下为会引起${symptom}的药物参考：</div>`;
+            
+            if (isSymptomEntity) {
+                try {
+                    // 强制用向量图谱模式 + 强锚定Prompt，精准查副作用关系
+                    const reverseQ = `请找出所有副作用包含${symptom}的药物，也就是会引发${symptom}的药物，从知识图谱中沿「药物-副作用」关系遍历，完整列出所有药物名称`;
+                    const reverseData = await api(reverseQ, 'vector_cypher');
+                    const reverseText = getText(reverseData);
+                    
+                    if (!isEmptyAnswer(reverseText)) {
+                        html += `<div class="answer-content">${formatAnswer(reverseText)}</div>`;
+                        const reverseNodes = getNodes(reverseData);
+                        const reverseTextNodes = getEntities(reverseText);
+                        allNodes.push(...new Set([...reverseNodes, ...reverseTextNodes]));
+                    } else {
+                        // 反向查询也没结果时，从主答案里提取相关药物
+                        const relatedDrugs = getEntities(answerText).filter(e => ENTITIES.indexOf(e) > 5); // 只取药物类实体
+                        if (relatedDrugs.length > 0) {
+                            html += `<div class="answer-content">根据图谱关联信息，与${symptom}相关的药物有：${relatedDrugs.join('、')}。</div>`;
+                            allNodes.push(...relatedDrugs);
+                        } else {
+                            html += `<div class="warn-box">⚠️ 暂未查询到与${symptom}相关的药物信息</div>`;
+                        }
+                    }
+                } catch(e) {
+                    html += `<div class="warn-box">⚠️ 查询关联信息失败，请稍后重试</div>`;
+                }
+            } else {
+                html += `<div class="answer-content">${formatAnswer(answerText)}</div>`;
+            }
+        } else {
+            html += `<div class="answer-content">${formatAnswer(answerText)}</div>`;
+        }
+        // ===== 治疗类问题兜底结束 =====
+
+
+        // 实体标签
+        if(allNodes.length){
+            html += '<div class="entity-list">';
+            allNodes.forEach(n=>html+=`<span class="entity-tag">${n}</span>`);
+            html += '</div>';
+        }
+
+        // 证据
+        if(data.evidence&&data.evidence.length){
+            html += '<div class="section-title">支撑证据</div>';
+            data.evidence.forEach((item,i)=>{
+                const t = typeof item==='string'?item:(item.text||item.content||'');
+                html += `<div class="evidence-card"><div>${t}</div><div class="source">证据 ${i+1}</div></div>`;
+            });
+        }
+
+        // 关联统计+高亮
+        if(allNodes.length){
+            html += `<div class="meta-info">📊 关联 <b>${allNodes.length}</b> 个图谱实体，右侧已高亮</div>`;
+            triggerHighlight(allNodes);
+        }
+
+        box.innerHTML = html;
+
+    }catch(err){
+        // 500错误自动降级重试
+        if(err.status===500 && retryIndex < RETRY_MODES.length-1){
+            return ask(retryIndex+1);
+        }
+        box.innerHTML = `<div class="error"><b>调用失败：</b>${err.message}<br>请确认后端服务已启动</div>`;
+    }finally{
+        btn.disabled = false;
+        btn.textContent = '提问';
+        box.scrollTop = 0;
+    }
+}
+
+// ========== 图谱高亮控制 ==========
+function triggerHighlight(nodes){
+    const f = document.getElementById('graph');
+    if(!f||!f.contentWindow) return;
+    setTimeout(()=>f.contentWindow.postMessage({type:'highlight',nodes},'*'),300);
+}
+function resetHighlight(){
+    const f = document.getElementById('graph');
+    if(!f||!f.contentWindow) return;
+    f.contentWindow.postMessage({type:'reset'},'*');
+}
+
+function clearAll(){
+    document.getElementById('q').value='';
+    document.getElementById('typeTip').style.display='none';
+    document.getElementById('answer').innerHTML = '<div class="loading">输入问题后点击「提问」<br>系统将基于知识图谱生成答案并标注证据</div>';
+    resetHighlight();
+}
+</script>
+</body>
+</html>

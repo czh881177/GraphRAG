@@ -29,7 +29,6 @@ from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from neo4j import GraphDatabase
-from neo4j_graphrag.retrievers.base import Retriever
 
 
 # ============================================================
@@ -72,7 +71,7 @@ FULLTEXT_INDEX_NAME = os.getenv(
     "text_fulltext"
 )
 
-TOP_K = int(os.getenv("RAG_TOP_K", "5"))
+TOP_K = int(os.getenv("RAG_TOP_K", "3"))
 
 ALLOWED_ENTITY_TYPES = {
     "药物",
@@ -299,238 +298,31 @@ def get_graph_retrieval_query() -> str:
 
     The query returns textual context plus graph data.
 
-    修复：由 1 跳扩展为 1~2 跳路径文本（如
-      「拜耳公司 -[研发]-> 阿司匹林 -[副作用]-> 胃肠道出血」），
-    使多跳问题（公司→药物→副作用）的关系链能进入上下文。
-    限流：每实体最多 30 条路径、每 chunk 最多 60 个实体，控制上下文体积。
+    限流：绑定召回 chunk → FROM_CHUNK 实体 → 1 跳邻居，
+    每实体最多 12 个邻居、每 chunk 最多 25 个实体，控制上下文体积。
     """
 
     return """
     WITH node
     MATCH (node)<-[:FROM_CHUNK]-(entity)
-    OPTIONAL MATCH path = (entity)-[r*1..2]-(neighbor)
-    WHERE ALL(rel IN r WHERE NOT endNode(rel):Chunk AND NOT endNode(rel):Document)
-      AND NOT neighbor:Chunk AND NOT neighbor:Document AND neighbor <> entity
-    WITH node, entity, r
+    OPTIONAL MATCH (entity)-[r]-(neighbor)
+    WHERE NOT neighbor:Chunk AND NOT neighbor:Document AND neighbor <> entity
+    WITH node, entity, neighbor, r
     WHERE r IS NOT NULL
-    WITH node, entity, r, size(r) AS hop
-    UNWIND r AS rel
-    WITH node, entity, hop,
-         coalesce(startNode(rel).name, 'unknown')
-         + ' -[' + type(rel) + ']-> '
-         + coalesce(endNode(rel).name, 'unknown') AS tri,
-         CASE WHEN type(rel) IN ['治疗', '缓解', '副作用', '研发']
-              THEN 0 ELSE 1 END AS pri
-    ORDER BY hop, pri, tri
-    WITH node, entity, collect(DISTINCT tri)[..30] AS triples
+    ORDER BY coalesce(entity.name, '')
+    WITH node, entity, collect(DISTINCT {
+        target: coalesce(neighbor.name, ''),
+        rel: type(r)
+    })[..12] AS neighbors
     RETURN
         node.text AS info,
         collect(DISTINCT {
             entity: coalesce(entity.name, ''),
             type: labels(entity)[0],
-            triples: triples
-        })[..60] AS graph_data
+            neighbors: neighbors
+        })[..25] AS graph_data
     """
 
-
-
-
-# ============================================================
-# 实体锚定检索（修复：图谱关系链稳定进入上下文）
-# ============================================================
-
-def extract_entities_for_question(
-    question: str,
-    llm: Any,
-    max_entities: int = 5,
-) -> list[str]:
-    """
-    从问题中提取候选医药实体（去重、保序）：
-      1. 图谱实体名直接出现在问题文本中（如「头痛」）
-      2. LLM 提取（如问题含「拜耳」→ 图谱节点「拜耳公司」，需模糊匹配）
-    LLM 提取失败时静默回退到文本匹配结果。
-    """
-    entities: list[str] = []
-
-    # 泛化类型词（问题中常见但不应作为锚定实体）
-    GENERIC_WORDS = {
-        "药物", "疾病", "症状", "副作用", "公司",
-        "作用机制", "概念", "药品", "制剂", "机制",
-    }
-
-    # 方法 1：图谱实体名直接出现在问题中
-    try:
-        with driver.session() as session:
-            rows = session.run(
-                """
-                MATCH (n)
-                WHERE NOT n:Chunk AND NOT n:Document
-                  AND $q CONTAINS n.name
-                RETURN n.name AS name
-                LIMIT 10
-                """,
-                q=question,
-            )
-            entities.extend(
-                r["name"] for r in rows
-                if r["name"] not in GENERIC_WORDS
-            )
-    except Exception as exc:
-        print(f"  ⚠ 图谱实体文本匹配失败: {exc}")
-
-    # 方法 2：LLM 提取（失败不影响主流程）
-    if llm is not None:
-        try:
-            extraction_prompt = (
-                "请从以下问题中提取所有医药实体"
-                "（药物、疾病、症状、公司、作用机制、副作用），"
-                "用中文逗号分隔，只输出实体名，不要解释：\n"
-                + question
-            )
-            res = llm.invoke(extraction_prompt)
-            raw = getattr(res, "content", None)
-            if raw is None:
-                raw = str(res)
-            for e in raw.replace("，", ",").split(","):
-                e = (
-                    e.strip()
-                    .strip("。．.!！?？")
-                    .replace("实体", "")
-                    .strip()
-                )
-                if not e or len(e) > 12:
-                    continue
-                if e in GENERIC_WORDS:
-                    continue
-                if e not in entities:
-                    entities.append(e)
-        except Exception as exc:
-            print(f"  ⚠ LLM 实体提取失败（使用文本匹配结果）: {exc}")
-
-    return entities[:max_entities]
-
-
-def build_entity_anchored_context(
-    entities: list[str],
-    max_paths_per_entity: int = 25,
-) -> str:
-    """
-    对候选实体做 1~2 跳图展开，输出紧凑三元组/路径文本。
-    例：拜耳公司 -[研发]-> 阿司匹林 -[副作用]-> 胃肠道出血
-    """
-    if not entities:
-        return ""
-
-    parts: list[str] = []
-
-    with driver.session() as session:
-        for ent in entities:
-            rows = list(
-                session.run(
-                    """
-                    MATCH (n)
-                    WHERE NOT n:Chunk AND NOT n:Document
-                      AND n.name CONTAINS $ent
-                    WITH n LIMIT 3
-                    OPTIONAL MATCH p = (n)-[r*1..2]-(m)
-                    WHERE ALL(x IN r
-                              WHERE NOT endNode(x):Chunk
-                                AND NOT endNode(x):Document)
-                      AND NOT m:Chunk AND NOT m:Document AND m <> n
-                    WITH n, r
-                    WHERE r IS NOT NULL
-                    WITH n, r, size(r) AS hop
-                    UNWIND r AS rel
-                    WITH n, hop,
-                         coalesce(startNode(rel).name, 'unknown')
-                         + ' -[' + type(rel) + ']-> '
-                         + coalesce(endNode(rel).name, 'unknown') AS tri,
-                         CASE WHEN type(rel) IN ['治疗', '缓解', '副作用', '研发']
-                              THEN 0 ELSE 1 END AS pri
-                    RETURN DISTINCT tri, hop, pri
-                    ORDER BY hop, pri, tri
-                    LIMIT $max_triples
-                    """,
-                    ent=ent,
-                    max_triples=max_paths_per_entity * 2,
-                )
-            )
-            for row in rows:
-                parts.append(row["tri"])
-
-    # 按序去重
-    seen = set()
-    unique = []
-    for p in parts:
-        if p not in seen:
-            seen.add(p)
-            unique.append(p)
-
-    return "\n".join(unique)
-
-
-class EntityAnchoredRetriever(Retriever):
-    """
-    包装任意 neo4j-graphrag 检索器（须继承 Retriever 基类，
-    满足 GraphRAG 的 pydantic 类型校验）：
-    在基础检索结果末尾追加「实体锚定」图谱关系链上下文，
-    使知识图谱关系数据稳定进入 LLM 上下文（主流程零侵入）。
-    """
-
-    VERIFY_NEO4J_VERSION = False
-
-    def __init__(
-        self,
-        base_retriever: Any,
-        llm: Any,
-        driver: Any,
-        neo4j_database: Any = None,
-    ):
-        try:
-            Retriever.__init__(self, driver, neo4j_database)
-        except Exception:
-            # 兼容离线测试环境（fake driver 无 _pool 属性等）
-            self.driver = driver
-            self.neo4j_database = neo4j_database
-        self._base = base_retriever
-        self._llm = llm
-
-    def get_search_results(self, *args: Any, **kwargs: Any) -> Any:
-        # 直接委托给被包装检索器（实际走 search，此处仅为满足抽象方法）
-        return self._base.get_search_results(*args, **kwargs)
-
-    def search(self, *args: Any, **kwargs: Any) -> Any:
-        result = self._base.search(*args, **kwargs)
-
-        try:
-            query_text = kwargs.get("query_text", "")
-            if not query_text:
-                return result
-
-            entities = extract_entities_for_question(
-                query_text,
-                self._llm,
-            )
-            anchored = build_entity_anchored_context(entities)
-
-            if anchored.strip():
-                from neo4j_graphrag.types import RetrieverResultItem
-
-                items = list(result.items)
-                items.append(
-                    RetrieverResultItem(
-                        content=(
-                            "知识图谱关系链（实体锚定检索，"
-                            "优先依据这些关系回答）：\n" + anchored
-                        ),
-                        metadata={"source": "entity_anchored"},
-                    )
-                )
-                result.items = items
-        except Exception as exc:
-            print(f"  ⚠ 实体锚定检索失败（不影响主流程）: {exc}")
-
-        return result
 
 # 5. Health API
 # ============================================================
@@ -1172,7 +964,7 @@ def graphrag_query():
         # ----------------------------------------------------
 
         graph_rag = GraphRAG(
-            retriever=EntityAnchoredRetriever(retriever, llm, driver),
+            retriever=retriever,
             llm=llm,
             prompt_template=rag_template,
         )
