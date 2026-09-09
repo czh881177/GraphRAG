@@ -92,16 +92,16 @@ def hybrid_cypher_search():
             continue
 
         print(f"\n🔍 正在执行 Hybrid+Cypher 检索（向量+全文+图遍历）...")
-        try:
-                # 辅助函数：利用 LLM 提取问题中的实体
-            def extract_entities_with_llm(query):
-                # 使用简单的提示词让 LLM 提取实体
-                extraction_prompt = f"请从以下问题中提取所有医药实体（如药物名、疾病名），用逗号分隔，不要有多余的字符：{query}"
-                try:
-                    res = llm.invoke(extraction_prompt)
-                    return [e.strip() for e in res.content.split(',') if e.strip()]
-                except Exception:
-                    return [query] # 提取失败则把整个问题当实体
+        # 辅助函数：利用 LLM 提取问题中的实体
+        def extract_entities_with_llm(query):
+            # 使用简单的提示词让 LLM 提取实体
+            extraction_prompt = f"请从以下问题中提取所有医药实体（如药物名、疾病名），用逗号分隔，不要有多余的字符：{query}"
+            try:
+                res = llm.invoke(extraction_prompt)
+                text = res.content if hasattr(res, 'content') else str(res)
+                return [e.strip() for e in text.split(',') if e.strip()]
+            except Exception:
+                return [query]  # 提取失败则把整个问题当实体
 
             # 替换原有的 retriever.search 逻辑
             print(f"\n🔍 正在执行多实体图增强检索...")
@@ -129,7 +129,7 @@ def hybrid_cypher_search():
                         else:
                             # 转为自然语言
                             for record in records:
-                                context_parts.append(f"{record['entity']} -[{record['rel']}]-> {record['target']}}")
+                                context_parts.append(f"{record['entity']} -[{record['rel']}]-> {record['target']}")
 
                 # 3. 如果没有图谱上下文，退回到原有的向量+全文检索
                 if not context_parts:
