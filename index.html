@@ -175,8 +175,8 @@
         .node { cursor: pointer; }
         .node circle { stroke: rgba(255, 255, 255, 0.85); stroke-width: 1.5px; transition: all 0.2s ease; }
         .node text {
-            font-size: 11px; fill: #fff; font-weight: 600; text-anchor: middle;
-            pointer-events: none;
+            font-size: 10.5px; fill: #eef4fb; text-anchor: middle; pointer-events: none;
+            paint-order: stroke; stroke: rgba(10, 24, 42, 0.85); stroke-width: 2.5px;
         }
         .node:hover circle { stroke: #4fc3f7; stroke-width: 3px; }
         .node.hl circle { stroke: #ffd700; stroke-width: 3px; filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.8)); }
@@ -296,13 +296,6 @@
 
         function getColor(type) { return colorScheme[type] || colorScheme['default']; }
 
-        /* 节点半径：按文字长度自适应，保证文字完整在圆圈内 */
-        function nodeR(d) {
-            const byDegree = 5 + Math.min(11, (d.degree || 1) * 0.7);
-            const byText = Math.ceil(d.label.length * 5.4) + 7;
-            return Math.max(byDegree, byText, 10);
-        }
-
         /* ---------- 图谱初始化 ---------- */
         function initGraph() {
             svg = d3.select('#graph');
@@ -318,10 +311,10 @@
                 .attr('orient', 'auto')
                 .append('path').attr('d', 'M0,-5L10,0L0,5').attr('fill', '#6f93b8');
             simulation = d3.forceSimulation()
-                .force('link', d3.forceLink().id(d => d.id).distance(d => nodeR(d.source) + nodeR(d.target) + 24))
-                .force('charge', d3.forceManyBody().strength(-520))
+                .force('link', d3.forceLink().id(d => d.id).distance(90))
+                .force('charge', d3.forceManyBody().strength(-320))
                 .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collision', d3.forceCollide().radius(d => nodeR(d) + 3));
+                .force('collision', d3.forceCollide().radius(d => 14 + Math.min(12, (d.degree || 1) * 0.8)));
             document.getElementById('zoom-in').addEventListener('click', () => svg.transition().call(zoom.scaleBy, 1.3));
             document.getElementById('zoom-out').addEventListener('click', () => svg.transition().call(zoom.scaleBy, 0.72));
             document.getElementById('zoom-reset').addEventListener('click', () => svg.transition().call(zoom.transform, d3.zoomIdentity));
@@ -347,11 +340,9 @@
                     .on('end', (ev, d) => { if (!ev.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }))
                 .on('click', (ev, d) => showDetails(d));
             node.append('circle')
-                .attr('r', d => nodeR(d))
+                .attr('r', d => 5 + Math.min(11, (d.degree || 1) * 0.7))
                 .attr('fill', d => getColor(d.type));
-            node.append('text')
-                .attr('dy', '.35em')
-                .text(d => d.label);
+            node.append('text').text(d => d.label);
             simulation.nodes(data.nodes).on('tick', ticked);
             simulation.force('link').links(data.edges);
             simulation.alpha(1).restart();
@@ -361,7 +352,7 @@
         function ticked() {
             link.attr('d', d => {
                 const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
-                const rr = nodeR(d.source);
+                const rr = 5 + Math.min(11, (d.source.degree || 1) * 0.7);
                 const len = Math.sqrt(dx * dx + dy * dy) || 1;
                 const sx = d.source.x + dx / len * rr, sy = d.source.y + dy / len * rr;
                 return `M${sx},${sy}L${d.target.x},${d.target.y}`;
