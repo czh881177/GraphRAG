@@ -480,7 +480,7 @@ def get_entities():
                 RETURN
              elementId(n) AS id,
             labels(n)[0] AS type,
-                (n.name, 'unknown') AS name
+                coalesce(n.name, 'unknown') AS name
 
 ORDER BY name
 """
@@ -501,7 +501,7 @@ ORDER BY name
                 RETURN
                     elementId(n) AS id,
                     labels(n)[0] AS type,
-                    coalesce(n.name, 'unknown') AS name
+                    coalescecoalesce(n.name, 'unknown') AS name
 
                 ORDER BY name
                 """
@@ -733,7 +733,7 @@ def search_entities():
     RETURN
         elementId(n) AS id,
         labels(n)[0] AS type,
-        coalesce(n.name, 'unknown') AS name
+        coalescecoalesce(n.name, 'unknown') AS name
 
     ORDER BY name
 
