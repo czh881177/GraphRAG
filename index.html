@@ -197,8 +197,10 @@
             paint-order: stroke; stroke: rgba(255, 255, 255, 0.92); stroke-width: 3px;
         }
         .node:hover circle { stroke: #3b82f6; stroke-width: 3px; }
-        .node.hl circle { stroke: #8b5cf6; stroke-width: 3px; filter: drop-shadow(0 0 7px rgba(139, 92, 246, 0.55)); }
-        .node.hl text { fill: #6d28d9; }
+        .node.hl circle { stroke: #8b5cf6; stroke-width: 3.5px; filter: drop-shadow(0 0 9px rgba(139, 92, 246, 0.75)); }
+        .node.hl text { fill: #6d28d9; font-weight: 700; }
+        .node.mild circle { stroke: #c4b5fd; stroke-width: 2.5px; }
+        .node.mild text { fill: #7c3aed; }
         .node.dim { opacity: 0.12; }
         .link { stroke: rgba(148, 163, 184, 0.55); stroke-width: 1.2px; transition: all 0.2s ease; }
         .link.hl { stroke: #8b5cf6; stroke-width: 2.5px; filter: drop-shadow(0 0 3px rgba(139, 92, 246, 0.5)); }
@@ -358,7 +360,7 @@
                     .on('end', (ev, d) => { if (!ev.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }))
                 .on('click', (ev, d) => showDetails(d));
             node.append('circle')
-                .attr('r', d => 5 + Math.min(11, (d.degree || 1) * 0.7))
+                .attr('r', d => { d._r = 5 + Math.min(11, (d.degree || 1) * 0.7); return d._r; })
                 .attr('fill', d => getColor(d.type));
             node.append('text').text(d => d.label);
             simulation.nodes(data.nodes).on('tick', ticked);
@@ -378,10 +380,29 @@
             node.attr('transform', d => `translate(${d.x},${d.y})`);
         }
 
+        let mildIds = new Set();
+        let searchActive = false;
+
         function applyFilters() {
             if (!node) return;
-            node.classed('dim', d => offTypes.has(d.type) && !highlightIds.has(d.id))
-                .classed('hl', d => highlightIds.has(d.id));
+            node.classed('dim', d => {
+                    if (highlightIds.has(d.id) || mildIds.has(d.id)) return false;
+                    if (searchActive) return true;
+                    return offTypes.has(d.type);
+                })
+                .classed('hl', d => highlightIds.has(d.id))
+                .classed('mild', d => mildIds.has(d.id) && !highlightIds.has(d.id))
+                .select('circle')
+                .attr('r', d => d._r * (highlightIds.has(d.id) ? 1.7 : mildIds.has(d.id) ? 1.2 : 1));
+            link.classed('dim', d => {
+                    const s = d.source && d.source.id !== undefined ? d.source.id : d.source;
+                    const t = d.target && d.target.id !== undefined ? d.target.id : d.target;
+                    const connected = highlightIds.has(s) || mildIds.has(s) || highlightIds.has(t) || mildIds.has(t);
+                    if (searchActive) return !connected;
+                    const st = d.source && d.source.type !== undefined ? d.source.type : null;
+                    const tt = d.target && d.target.type !== undefined ? d.target.type : null;
+                    return offTypes.has(st) || offTypes.has(tt);
+                });
             link.classed('dim', d => {
                 const st = d.source && d.source.type !== undefined ? d.source.type : null;
                 const tt = d.target && d.target.type !== undefined ? d.target.type : null;
@@ -517,14 +538,43 @@
         async function onSearch() {
             const kw = document.getElementById('search-box').value.trim();
             highlightIds.clear();
+            mildIds.clear();
+            searchActive = kw.length > 0;
             if (kw) {
                 try {
                     const r = await fetch(API_BASE + '/search?q=' + encodeURIComponent(kw));
                     const d = await r.json();
-                    (d.results || []).forEach(x => highlightIds.add(x.id));
+                    const hits = (d.results || []).map(x => x.id);
+                    hits.forEach(id => highlightIds.add(id));
+                    /* 一跳邻居弱高亮 */
+                    const relOf = (e) => {
+                        const s = e.source && e.source.id !== undefined ? e.source.id : e.source;
+                        const t = e.target && e.target.id !== undefined ? e.target.id : e.target;
+                        return { s, t };
+                    };
+                    graphData.edges.forEach(e => {
+                        const r2 = relOf(e);
+                        if (hits.includes(r2.s)) mildIds.add(r2.t);
+                        if (hits.includes(r2.t)) mildIds.add(r2.s);
+                    });
+                    /* 自动聚焦到第一个命中节点 */
+                    if (hits.length) {
+                        const n = graphData.nodes.find(x => x.id === hits[0]);
+                        if (n && n.x !== undefined) focusOn(n);
+                    }
                 } catch (e) { /* 忽略 */ }
             }
             applyFilters();
+        }
+
+        function focusOn(n) {
+            const container = document.getElementById('graph-container');
+            const w = container.clientWidth, h = container.clientHeight;
+            const k = 2.2;
+            svg.transition().duration(650).call(
+                zoom.transform,
+                d3.zoomIdentity.translate(w / 2 - n.x * k, h / 2 - n.y * k).scale(k)
+            );
         }
 
         /* ---------- 节点详情 ---------- */
