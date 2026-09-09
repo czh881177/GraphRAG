@@ -297,53 +297,33 @@ def get_graph_retrieval_query() -> str:
     HybridCypherRetriever.
 
     The query returns textual context plus graph data.
+
+    限流：绑定召回 chunk → FROM_CHUNK 实体 → 1 跳邻居，
+    每实体最多 12 个邻居、每 chunk 最多 25 个实体，控制上下文体积。
     """
 
     return """
-    WITH node AS chunk
-
-    MATCH path =
-        (chunk)<-[:FROM_CHUNK]-(entity)
-        -[*0..2]-(neighbor)
-
-    WHERE NOT neighbor:Chunk
-      AND NOT neighbor:Document
-
-    WITH chunk, entity, neighbor, path
-
+    WITH node
+    MATCH (node)<-[:FROM_CHUNK]-(entity)
+    OPTIONAL MATCH (entity)-[r]-(neighbor)
+    WHERE NOT neighbor:Chunk AND NOT neighbor:Document AND neighbor <> entity
+    WITH node, entity, neighbor, r
+    WHERE r IS NOT NULL
+    ORDER BY coalesce(entity.name, '')
+    WITH node, entity, collect(DISTINCT {
+        target: coalesce(neighbor.name, ''),
+        rel: type(r)
+    })[..12] AS neighbors
     RETURN
-        chunk.text AS info,
-        collect(
-            DISTINCT {
-                source_id: elementId(entity),
-                source_name: coalesce(entity.name, ''),
-                source_type:
-                    CASE
-                        WHEN size(labels(entity)) > 0
-                        THEN labels(entity)[0]
-                        ELSE 'unknown'
-                    END,
-
-                target_id: elementId(neighbor),
-                target_name: coalesce(neighbor.name, ''),
-                target_type:
-                    CASE
-                        WHEN size(labels(neighbor)) > 0
-                        THEN labels(neighbor)[0]
-                        ELSE 'unknown'
-                    END,
-
-                relationships:
-                    [
-                        r IN relationships(path)
-                        | type(r)
-                    ]
-            }
-        ) AS graph_data
+        node.text AS info,
+        collect(DISTINCT {
+            entity: coalesce(entity.name, ''),
+            type: labels(entity)[0],
+            neighbors: neighbors
+        })[..25] AS graph_data
     """
 
 
-# ============================================================
 # 5. Health API
 # ============================================================
 

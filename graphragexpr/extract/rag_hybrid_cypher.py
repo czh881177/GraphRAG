@@ -35,13 +35,26 @@ def hybrid_cypher_search():
         print(f"❌ Embedding 测试失败: {e}")
         return
 
-    # 无参数版本，直接使用 node 变量
+    # 限流图展开：绑定召回 chunk → 实体 → 1 跳邻居（每实体≤12 邻居，每 chunk≤25 实体）
     retrieval_query = """
-    MATCH (node)
-    OPTIONAL MATCH (node)-[r1]-(neighbor1)
-    OPTIONAL MATCH (neighbor1)-[r2]-(neighbor2) WHERE neighbor2 <> node
-    RETURN node, r1, neighbor1, r2, neighbor2
-    LIMIT 20
+    WITH node
+    MATCH (node)<-[:FROM_CHUNK]-(entity)
+    OPTIONAL MATCH (entity)-[r]-(neighbor)
+    WHERE NOT neighbor:Chunk AND NOT neighbor:Document AND neighbor <> entity
+    WITH node, entity, neighbor, r
+    WHERE r IS NOT NULL
+    ORDER BY coalesce(entity.name, '')
+    WITH node, entity, collect(DISTINCT {
+        target: coalesce(neighbor.name, ''),
+        rel: type(r)
+    })[..12] AS neighbors
+    RETURN
+        node.text AS info,
+        collect(DISTINCT {
+            entity: coalesce(entity.name, ''),
+            type: labels(entity)[0],
+            neighbors: neighbors
+        })[..25] AS graph_data
     """
 
     retriever = HybridCypherRetriever(
