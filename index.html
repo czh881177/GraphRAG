@@ -335,12 +335,8 @@
             node = g.selectAll('.node').data(data.nodes, d => d.id)
                 .join('g').attr('class', 'node')
                 .call(d3.drag()
-                    .on('start', (ev, d) => { if (!ev.active) simulation.alphaTarget(0.35).restart(); d.fx = d.x; d.fy = d.y; })
-                    .on('drag', (ev, d) => {
-                        d.fx = ev.x; d.fy = ev.y;
-                        d.x = ev.x; d.y = ev.y;   /* 节点立即跟随鼠标 */
-                        ticked();                  /* 连线立即重绘，消除滞后 */
-                    })
+                    .on('start', (ev, d) => { if (!ev.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+                    .on('drag', (ev, d) => { d.fx = ev.x; d.fy = ev.y; })
                     .on('end', (ev, d) => { if (!ev.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }))
                 .on('click', (ev, d) => showDetails(d));
             node.append('circle')
