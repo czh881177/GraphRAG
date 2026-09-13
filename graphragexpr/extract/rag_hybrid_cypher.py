@@ -83,6 +83,16 @@ def hybrid_cypher_search():
 答案：
 """
 
+    # 辅助函数：利用 LLM 提取问题中的实体
+    def extract_entities_with_llm(query):
+        extraction_prompt = f"请从以下问题中提取所有医药实体（如药物名、疾病名），用逗号分隔，不要有多余的字符：{query}"
+        try:
+            res = llm.invoke(extraction_prompt)
+            text = res.content if hasattr(res, 'content') else str(res)
+            return [e.strip() for e in text.split(',') if e.strip()]
+        except Exception:
+            return [query]
+
     while True:
         query = input("\n请输入问题（输入 exit 退出）：")
         if query.lower() == "exit":
@@ -92,60 +102,45 @@ def hybrid_cypher_search():
             continue
 
         print(f"\n🔍 正在执行 Hybrid+Cypher 检索（向量+全文+图遍历）...")
-        # 辅助函数：利用 LLM 提取问题中的实体
-        def extract_entities_with_llm(query):
-            # 使用简单的提示词让 LLM 提取实体
-            extraction_prompt = f"请从以下问题中提取所有医药实体（如药物名、疾病名），用逗号分隔，不要有多余的字符：{query}"
-            try:
-                res = llm.invoke(extraction_prompt)
-                text = res.content if hasattr(res, 'content') else str(res)
-                return [e.strip() for e in text.split(',') if e.strip()]
-            except Exception:
-                return [query]  # 提取失败则把整个问题当实体
+        try:
+            # 1. 提取实体
+            entities = extract_entities_with_llm(query)
+            print(f"检测到实体: {entities}")
 
-            # 替换原有的 retriever.search 逻辑
-            print(f"\n🔍 正在执行多实体图增强检索...")
-            try:
-                # 1. 提取实体
-                entities = extract_entities_with_llm(query)
-                print(f"检测到实体: {entities}")
+            # 2. 针对每个实体，手动查询图谱
+            context_parts = []
+            with driver.session() as session:
+                for entity in entities:
+                    cypher = """
+                    MATCH (p) WHERE p.name CONTAINS $entity AND NOT p:Chunk AND NOT p:Document
+                    OPTIONAL MATCH (p)-[r]-(neighbor)
+                    WHERE NOT neighbor:Chunk AND NOT neighbor:Document
+                    RETURN p.name AS entity, type(r) AS rel, neighbor.name AS target LIMIT 15
+                    """
+                    result = session.run(cypher, entity=entity)
+                    records = [record for record in result]
 
-                # 2. 针对每个实体，手动查询图谱（不再依赖向量检索）
-                context_parts = []
-                with driver.session() as session:
-                    for entity in entities:
-                        # 直接通过名称模糊匹配找到实体，并获取其邻居
-                        cypher = """
-                        MATCH (p) WHERE p.name CONTAINS $entity AND NOT p:Chunk AND NOT p:Document
-                        OPTIONAL MATCH (p)-[r]-(neighbor)
-                        WHERE NOT neighbor:Chunk AND NOT neighbor:Document
-                        RETURN p.name AS entity, type(r) AS rel, neighbor.name AS target LIMIT 15
-                        """
-                        result = session.run(cypher, entity=entity)
-                        records = [record for record in result]
-                
-                        if not records:
-                            context_parts.append(f"实体: {entity} (未在图谱中找到)")
-                        else:
-                            # 转为自然语言
-                            for record in records:
-                                context_parts.append(f"{record['entity']} -[{record['rel']}]-> {record['target']}")
+                    if not records:
+                        context_parts.append(f"实体: {entity} (未在图谱中找到)")
+                    else:
+                        for record in records:
+                            context_parts.append(f"{record['entity']} -[{record['rel']}]-> {record['target']}")
 
-                # 3. 如果没有图谱上下文，退回到原有的向量+全文检索
-                if not context_parts:
-                    result = retriever.search(query_text=query, top_k=5)
-                    for item in result.items:
-                        context_parts.append(item.content)
+            # 3. 如果没有图谱上下文，退回到向量+全文检索
+            if not context_parts:
+                result = retriever.search(query_text=query, top_k=5)
+                for item in result.items:
+                    context_parts.append(item.content)
 
-                context = "\n".join(context_parts)
+            context = "\n".join(context_parts)
 
-                # 4. 发送给 LLM 获得最终答案
-                response = llm.invoke(
-                    prompt_template.format(context=context, query=query)
-                )
-                print(f"\n✅ 答案: {response}")
-            except Exception as e:
-                print(f"❌ 检索失败: {e}")
+            # 4. 发送给 LLM 获得最终答案
+            response = llm.invoke(
+                prompt_template.format(context=context, query=query)
+            )
+            print(f"\n✅ 答案：{response}")
+        except Exception as e:
+            print(f"❌ 检索失败: {e}")
 
 if __name__ == "__main__":
     hybrid_cypher_search()

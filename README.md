@@ -51,7 +51,7 @@ graphRAG/
 
 │   └── processed/      # 清洗分块后的语料
 
-├── docs/               # 契约 / 数据方案 / Schema / 准备清单
+├── docs/               # 契约 / 数据方案 / Schema / 准备清单 / 交付报告 / 评估结果 / 项目介绍书
 
 ├── scripts/            # 环境检查 / Schema 初始化
 
@@ -143,3 +143,33 @@ powershell -ExecutionPolicy Bypass -File .\setup.ps1          # 4/4 全绿
 | 向量索引查询报错 | Chunk 写入时必须带 `embedding` 属性（见 SCHEMA §6） |
 | API key 泄漏 | `.env` 不入库；不截图发群；泄露立即在控制台重置 |
 | 中文乱码 | 脚本已设 `PYTHONIOENCODING=utf-8`；文本文件统一 UTF-8 |
+
+***
+
+## 6. 文档索引
+
+| 文档 | 说明 |
+|------|------|
+| `docs/PROJECT_INTRODUCTION.md` | **项目介绍书**（完整项目说明，含架构、数据、检索、前端、测试、分工） |
+| `docs/API_CONTRACT.md` | API 接口契约 |
+| `docs/DATA_PLAN.md` | 数据方案 |
+| `docs/SCHEMA.md` | 图谱 Schema 设计 |
+| `docs/PREP_CHECKLIST.md` | 项目前准备清单（组员必读） |
+| `docs/EVALUATION_RESULTS.txt` | 40 条评估结果（4 检索器 × 10 问题） |
+| `docs/TASK_B_DELIVERABLES.md` | B 任务交付报告（数据与图谱构建） |
+| `docs/TASK_C_DELIVERABLES.md` | C 任务交付报告（检索与生成） |
+| `docs/TASK_D_DELIVERABLES.md` | D 任务交付报告（后端 API） |
+| `docs/TASK_D_COMPLETION_REPORT.md` | D 任务完成报告 |
+| `docs/TASK_E_DELIVERABLES.md` | E 任务交付报告（可视化与汇报） |
+
+## 7. 第二周完成情况
+
+- ✅ 32 篇医药语料建图完成（361 实体 / 513 关系 / 7 类实体）
+- ✅ 四类检索器全部实现并可运行（vector / graph / hybrid / hybrid_cypher）
+- ✅ 智谱 embedding-3 接入，修复哈希降级语义召回失效问题
+- ✅ Flask 后端 7 个 API 端点完成
+- ✅ 交互式图谱前端完成（问答、可视化、实体搜索高亮、答案溯源）
+- ✅ pytest 33 项自动化测试全部通过
+- ✅ 40 条评估完成（4 检索器 × 10 问题，均正常作答）
+- ✅ 项目介绍书、B/C/D/E 任务交付报告齐全
+- ✅ 汇报 PPT 完成（15 页，含分工移至第二章）
