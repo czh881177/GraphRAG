@@ -164,7 +164,7 @@ powershell -ExecutionPolicy Bypass -File .\setup.ps1          # 4/4 全绿
 
 ## 7. 第二周完成情况
 
-- ✅ 32 篇医药语料建图完成（361 实体 / 513 关系 / 7 类实体）
+- ✅ 32 篇医药语料建图完成（568 实体 / 858 关系 / 7 类实体 / 7 类关系）
 - ✅ 四类检索器全部实现并可运行（vector / graph / hybrid / hybrid_cypher）
 - ✅ 智谱 embedding-3 接入，修复哈希降级语义召回失效问题
 - ✅ Flask 后端 7 个 API 端点完成
